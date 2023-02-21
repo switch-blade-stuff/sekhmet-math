@@ -1,0 +1,3 @@
+[submodule "sekhmet-core"]
+	path = dpm
+	url = https://github.com/switch-blade-stuff/dpm
