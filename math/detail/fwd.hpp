@@ -28,8 +28,6 @@ namespace sek::math
 	[[nodiscard]] constexpr typename vec_mask<T, N, Abi>::simd_type &to_simd(vec_mask<T, N, Abi> &x) noexcept;
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr const typename vec_mask<T, N, Abi>::simd_type &to_simd(const vec_mask<T, N, Abi> &x) noexcept;
-	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
-	[[nodiscard]] inline vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(vec_mask<T, N, Abi> x) noexcept;
 
 	template<typename T, std::size_t N, typename Abi = abi::fixed_size<N>>
 	class vec;
@@ -38,6 +36,4 @@ namespace sek::math
 	[[nodiscard]] constexpr typename vec<T, N, Abi>::simd_type &to_simd(vec<T, N, Abi> &x) noexcept;
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr const typename vec<T, N, Abi>::simd_type &to_simd(const vec<T, N, Abi> &x) noexcept;
-	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
-	[[nodiscard]] inline vec<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(vec<T, N, Abi> x) noexcept;
 }

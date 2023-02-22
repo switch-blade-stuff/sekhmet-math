@@ -20,6 +20,11 @@ namespace sek::math
 	}
 
 	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator+(const vec<T, N, Abi> &a, T b) noexcept requires (requires { a + vec<T, N, Abi>{b}; }) { return a + vec<T, N, Abi>{b}; }
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator-(const vec<T, N, Abi> &a, T b) noexcept requires (requires { a - vec<T, N, Abi>{b}; }) { return a - vec<T, N, Abi>{b}; }
+
+	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator*(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) * to_simd(b); })
 	{
 		return {to_simd(a) * to_simd(b)};
@@ -33,5 +38,43 @@ namespace sek::math
 	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator%(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) % to_simd(b); })
 	{
 		return {to_simd(a) % to_simd(b)};
+	}
+
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator*(const vec<T, N, Abi> &a, T b) noexcept requires (requires { a * vec<T, N, Abi>{b}; }) { return a * vec<T, N, Abi>{b}; }
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator/(const vec<T, N, Abi> &a, T b) noexcept requires (requires { a / vec<T, N, Abi>{b}; }) { return a / vec<T, N, Abi>{b}; }
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec<T, N, Abi> operator%(const vec<T, N, Abi> &a, T b) noexcept requires (requires { a % vec<T, N, Abi>{b}; }) { return a % vec<T, N, Abi>{b}; }
+
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec_mask<T, N, Abi> operator==(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept
+	{
+		return {to_simd(a) == to_simd(b)};
+	}
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec_mask<T, N, Abi> operator!=(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept
+	{
+		return {to_simd(a) != to_simd(b)};
+	}
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec_mask<T, N, Abi> operator<=(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept
+	{
+		return {to_simd(a) <= to_simd(b)};
+	}
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec_mask<T, N, Abi> operator>=(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept
+	{
+		return {to_simd(a) >= to_simd(b)};
+	}
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec_mask<T, N, Abi> operator<(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept
+	{
+		return {to_simd(a) < to_simd(b)};
+	}
+	template<typename T, std::size_t N, typename Abi>
+	[[nodiscard]] SEK_FORCEINLINE vec_mask<T, N, Abi> operator>(const vec<T, N, Abi> &a, const vec<T, N, Abi> &b) noexcept
+	{
+		return {to_simd(a) > to_simd(b)};
 	}
 }

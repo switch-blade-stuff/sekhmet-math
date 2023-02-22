@@ -6,34 +6,46 @@
 
 #include "../fwd.hpp"
 
+namespace sek::math
+{
+	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
+	[[nodiscard]] inline vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(vec_mask<T, N, Abi> x) noexcept;
+
+	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
+	[[nodiscard]] inline vec<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(vec<T, N, Abi> x) noexcept;
+}
+
+/* Vector API exposes convenience element shuffles (xxx, xxy, xxz, etc.). These macros are used to generate all possible
+ * permutations of element shuffle functions for 2-, 3-, end 4-element vectors. Ugly but beats writing them manually. */
+
 #define SEK_MAKE_VEC_GETTERS2(type, M, x, y, ix, iy)                                                                    \
     template<typename NewAbi = Abi>                                                                                     \
-	[[nodiscard]] SEK_FORCEINLINE type<T, 2, abi::deduce_t<T, 2, NewAbi>> x##y() const noexcept requires (N >= M)       \
-	{                                                                                                                   \
-		return {shuffle<ix, iy>(*this)};                                                                                \
-	}
+    [[nodiscard]] SEK_FORCEINLINE type<T, 2, abi::deduce_t<T, 2, NewAbi>> x##y() const noexcept requires (N >= M)       \
+    {                                                                                                                   \
+        return {shuffle<ix, iy>(*this)};                                                                                \
+    }
 #define SEK_MAKE_VEC_GETTERS3(type, M, x, y, z, ix, iy, iz)                                                             \
-	template<typename NewAbi = Abi>                                                                                     \
-	[[nodiscard]] SEK_FORCEINLINE type<T, 3, abi::deduce_t<T, 3, NewAbi>> x##y##z() const noexcept requires (N >= M)    \
-	{                                                                                                                   \
-		return {shuffle<ix, iy, iz>(*this)};                                                                            \
-	}
+    template<typename NewAbi = Abi>                                                                                     \
+    [[nodiscard]] SEK_FORCEINLINE type<T, 3, abi::deduce_t<T, 3, NewAbi>> x##y##z() const noexcept requires (N >= M)    \
+    {                                                                                                                   \
+        return {shuffle<ix, iy, iz>(*this)};                                                                            \
+    }
 #define SEK_MAKE_VEC_GETTERS4(type, M, x, y, z, w, ix, iy, iz, iw)                                                      \
-	template<typename NewAbi = Abi>                                                                                     \
-	[[nodiscard]] SEK_FORCEINLINE type<T, 4, abi::deduce_t<T, 4, NewAbi>> x##y##z##w() const noexcept requires (N >= M) \
-	{                                                                                                                   \
-		return {shuffle<ix, iy, iz, iw>(*this)};                                                                        \
-	}
+    template<typename NewAbi = Abi>                                                                                     \
+    [[nodiscard]] SEK_FORCEINLINE type<T, 4, abi::deduce_t<T, 4, NewAbi>> x##y##z##w() const noexcept requires (N >= M) \
+    {                                                                                                                   \
+        return {shuffle<ix, iy, iz, iw>(*this)};                                                                        \
+    }
 
 #define SEK_MAKE_VEC_GETTERS(type, U, x, y, z, w)                                                   \
-	[[nodiscard]] SEK_FORCEINLINE auto & x() noexcept { return operator[](0); }                     \
-	[[nodiscard]] SEK_FORCEINLINE auto & y() noexcept { return operator[](1); }                     \
-	[[nodiscard]] SEK_FORCEINLINE auto & z() noexcept requires (N > 2) { return operator[](2); }    \
-	[[nodiscard]] SEK_FORCEINLINE auto & w() noexcept requires (N > 3) { return operator[](3); }    \
-	[[nodiscard]] SEK_FORCEINLINE U x() const noexcept { return operator[](0); }                    \
-	[[nodiscard]] SEK_FORCEINLINE U y() const noexcept { return operator[](1); }                    \
-	[[nodiscard]] SEK_FORCEINLINE U z() const noexcept requires (N > 2) { return operator[](2); }   \
-	[[nodiscard]] SEK_FORCEINLINE U w() const noexcept requires (N > 3) { return operator[](3); }   \
+    [[nodiscard]] SEK_FORCEINLINE auto & x() noexcept { return operator[](0); }                     \
+    [[nodiscard]] SEK_FORCEINLINE auto & y() noexcept { return operator[](1); }                     \
+    [[nodiscard]] SEK_FORCEINLINE auto & z() noexcept requires (N > 2) { return operator[](2); }    \
+    [[nodiscard]] SEK_FORCEINLINE auto & w() noexcept requires (N > 3) { return operator[](3); }    \
+    [[nodiscard]] SEK_FORCEINLINE U x() const noexcept { return operator[](0); }                    \
+    [[nodiscard]] SEK_FORCEINLINE U y() const noexcept { return operator[](1); }                    \
+    [[nodiscard]] SEK_FORCEINLINE U z() const noexcept requires (N > 2) { return operator[](2); }   \
+    [[nodiscard]] SEK_FORCEINLINE U w() const noexcept requires (N > 3) { return operator[](3); }   \
                                                                                                     \
     SEK_MAKE_VEC_GETTERS2(type, 2, x, x, 0, 0)                                                      \
     SEK_MAKE_VEC_GETTERS2(type, 2, x, y, 0, 1)                                                      \

@@ -133,15 +133,55 @@ namespace sek::math
 	template<typename... Us>
 	vec_mask(Us &&...) -> vec_mask<detail::combine_value<Us...>, (detail::arg_extent_v<Us> + ...), detail::combine_abi<Us...>>;
 
+	/** Returns reference to the underlying `dpm::simd_mask` object of the vector mask. */
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr typename vec_mask<T, N, Abi>::simd_type &to_simd(vec_mask<T, N, Abi> &x) noexcept { return x.m_data; }
+	/** @copydoc to_simd */
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr const typename vec_mask<T, N, Abi>::simd_type &to_simd(const vec_mask<T, N, Abi> &x) noexcept { return x.m_data; }
+
+	/** Shuffles elements of the vector mask according to the indices specified by `Is`. */
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
 	[[nodiscard]] inline vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(vec_mask<T, N, Abi> x) noexcept
 	{
 		return {dpm::shuffle<Is...>(to_simd(x))};
 	}
+
+	/** Alias for default-ABI vector mask of 2 elements. */
+	template<typename T, typename Abi = abi::fixed_size<2>>
+	using vec2_mask = vec_mask<T, 2, Abi>;
+	/** Alias for default-ABI vector mask of 3 elements. */
+	template<typename T, typename Abi = abi::fixed_size<3>>
+	using vec3_mask = vec_mask<T, 3, Abi>;
+	/** Alias for default-ABI vector mask of 4 elements. */
+	template<typename T, typename Abi = abi::fixed_size<4>>
+	using vec4_mask = vec_mask<T, 4, Abi>;
+
+	/** Alias for vector mask that uses compatible (implementation-defined) ABI. */
+	template<typename T, std::size_t N>
+	using compat_vec_mask = vec_mask<T, N, abi::deduce_t<T, N, abi::compatible<T>>>;
+	/** Alias for compatible-ABI vector mask of 2 elements. */
+	template<typename T>
+	using compat_vec2_mask = compat_vec_mask<T, 2>;
+	/** Alias for compatible-ABI vector mask of 3 elements. */
+	template<typename T>
+	using compat_vec3_mask = compat_vec_mask<T, 3>;
+	/** Alias for compatible-ABI vector mask of 4 elements. */
+	template<typename T>
+	using compat_vec4_mask = compat_vec_mask<T, 4>;
+
+	/** Alias for vector mask that uses packed (non-vectorized) ABI. */
+	template<typename T, std::size_t N>
+	using packed_vec_mask = vec_mask<T, N, abi::packed_buffer<N>>;
+	/** Alias for packed-ABI vector mask of 2 elements. */
+	template<typename T>
+	using packed_vec2_mask = packed_vec_mask<T, 2>;
+	/** Alias for packed-ABI vector mask of 3 elements. */
+	template<typename T>
+	using packed_vec3_mask = packed_vec_mask<T, 3>;
+	/** Alias for packed-ABI vector mask of 4 elements. */
+	template<typename T>
+	using packed_vec4_mask = packed_vec_mask<T, 4>;
 
 	template<typename T, std::size_t N, typename Abi>
 	class vec
@@ -213,38 +253,53 @@ namespace sek::math
 	template<typename... Us>
 	vec(Us &&...) -> vec<detail::combine_value<Us...>, (detail::arg_extent_v<Us> + ...), detail::combine_abi<Us...>>;
 
+	/** Returns reference to the underlying `dpm::simd` object of the vector. */
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr typename vec<T, N, Abi>::simd_type &to_simd(vec<T, N, Abi> &x) noexcept { return x.m_data; }
+	/** @copydoc to_simd */
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr const typename vec<T, N, Abi>::simd_type &to_simd(const vec<T, N, Abi> &x) noexcept { return x.m_data; }
+
+	/** Shuffles elements of the vector according to the indices specified by `Is`. */
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
 	[[nodiscard]] inline vec<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(vec<T, N, Abi> x) noexcept
 	{
 		return {dpm::shuffle<Is...>(to_simd(x))};
 	}
 
+	/** Alias for default-ABI vector of 2 elements. */
 	template<typename T, typename Abi = abi::fixed_size<2>>
 	using vec2 = vec<T, 2, Abi>;
+	/** Alias for default-ABI vector of 3 elements. */
 	template<typename T, typename Abi = abi::fixed_size<3>>
 	using vec3 = vec<T, 3, Abi>;
+	/** Alias for default-ABI vector of 4 elements. */
 	template<typename T, typename Abi = abi::fixed_size<4>>
 	using vec4 = vec<T, 4, Abi>;
 
+	/** Alias for vector that uses compatible (implementation-defined) ABI. */
 	template<typename T, std::size_t N>
 	using compat_vec = vec<T, N, abi::deduce_t<T, N, abi::compatible<T>>>;
+	/** Alias for compatible-ABI vector of 2 elements. */
 	template<typename T>
 	using compat_vec2 = compat_vec<T, 2>;
+	/** Alias for compatible-ABI vector of 3 elements. */
 	template<typename T>
 	using compat_vec3 = compat_vec<T, 3>;
+	/** Alias for compatible-ABI vector of 4 elements. */
 	template<typename T>
 	using compat_vec4 = compat_vec<T, 4>;
 
+	/** Alias for vector that uses packed (non-vectorized) ABI. */
 	template<typename T, std::size_t N>
 	using packed_vec = vec<T, N, abi::packed_buffer<N>>;
+	/** Alias for packed-ABI vector of 2 elements. */
 	template<typename T>
 	using packed_vec2 = packed_vec<T, 2>;
+	/** Alias for packed-ABI vector of 3 elements. */
 	template<typename T>
 	using packed_vec3 = packed_vec<T, 3>;
+	/** Alias for packed-ABI vector of 4 elements. */
 	template<typename T>
 	using packed_vec4 = packed_vec<T, 4>;
 }
