@@ -1,3 +1,3 @@
-[submodule "dpm"]
-	path = dpm
+[submodule "lib/dpm"]
+	path = external/dpm
 	url = https://github.com/switch-blade-stuff/dpm
