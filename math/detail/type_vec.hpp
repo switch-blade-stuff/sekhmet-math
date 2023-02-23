@@ -54,6 +54,8 @@ namespace sek
 		struct arg_extent : std::integral_constant<std::size_t, 1> {};
 		template<typename T, std::size_t N, typename A>
 		struct arg_extent<basic_vec<T, N, A>> : std::integral_constant<std::size_t, N> {};
+		template<typename T, std::size_t N, typename A>
+		struct arg_extent<basic_vec_mask<T, N, A>> : std::integral_constant<std::size_t, N> {};
 		template<typename T>
 		inline constexpr auto arg_extent_v = arg_extent<std::remove_cvref_t<T>>::value;
 
@@ -148,7 +150,7 @@ namespace sek
 			}
 		}
 		template<std::size_t I = 0, std::size_t J = 0, std::size_t M, typename OtherAbi, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(const basic_vec<U, M, OtherAbi> &other, Us &&...vals) noexcept
+		SEK_FORCEINLINE void fill_impl(const basic_vec_mask<U, M, OtherAbi> &other, Us &&...vals) noexcept
 		{
 			if constexpr (J < M)
 			{
