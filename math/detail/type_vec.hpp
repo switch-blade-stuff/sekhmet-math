@@ -5,7 +5,6 @@
 #pragma once
 
 #include <stdexcept>
-#include <utility>
 
 #include "shuffle.hpp"
 
@@ -13,6 +12,9 @@ namespace sek
 {
 	namespace detail
 	{
+		template<typename T>
+		concept has_tuple_size = requires { typename std::void_t<decltype(sizeof(std::tuple_size<T>))>; };
+
 		template<typename T>
 		struct is_vec : std::false_type {};
 		template<typename T, std::size_t N, typename A>
@@ -32,40 +34,32 @@ namespace sek
 		template<typename T, std::same_as<T>... Ts>
 		struct all_same<T, Ts...> : std::true_type {};
 
-		template<typename T, typename... Ts>
-		struct arg_value { using type = T; };
-		template<typename T, std::size_t N, typename A, typename... Ts>
-		struct arg_value<basic_vec<T, N, A>, Ts...> { using type = T; };
-		template<typename T, std::size_t N, typename A, typename... Ts>
-		struct arg_value<basic_vec_mask<T, N, A>, Ts...> { using type = bool; };
-		template<typename... Ts>
-		using arg_value_t = typename arg_value<std::remove_cvref_t<Ts>...>::type;
-
-		template<typename T, typename... Ts>
-		struct arg_abi { using type = abi::compatible<T>; };
-		template<typename T, std::size_t N, typename A, typename... Ts>
-		struct arg_abi<basic_vec<T, N, A>, Ts...> { using type = A; };
-		template<typename T, std::size_t N, typename A, typename... Ts>
-		struct arg_abi<basic_vec_mask<T, N, A>, Ts...> { using type = A; };
-		template<typename... Ts>
-		using arg_abi_t = typename arg_abi<std::remove_cvref_t<Ts>...>::type;
+		template<typename, typename>
+		struct common_tuple_type;
+		template<typename T, std::size_t... Is>
+		struct common_tuple_type<T, std::index_sequence<Is...>> : std::common_type<std::tuple_element_t<Is, T>...> {};
 
 		template<typename>
 		struct arg_extent : std::integral_constant<std::size_t, 1> {};
-		template<typename T, std::size_t N, typename A>
-		struct arg_extent<basic_vec<T, N, A>> : std::integral_constant<std::size_t, N> {};
-		template<typename T, std::size_t N, typename A>
-		struct arg_extent<basic_vec_mask<T, N, A>> : std::integral_constant<std::size_t, N> {};
+		template<has_tuple_size T>
+		struct arg_extent<T> : std::tuple_size<T> {};
 		template<typename T>
 		inline constexpr auto arg_extent_v = arg_extent<std::remove_cvref_t<T>>::value;
 
-		template<typename... Ts>
-		using combine_value = std::common_type_t<arg_value_t<Ts>...>;
-		template<typename... Ts>
-		using combine_abi = std::conditional_t<std::conjunction_v<all_same<Ts>...>, arg_abi_t<Ts...>, abi::compatible<arg_value_t<Ts...>>>;
+		template<typename, typename, typename>
+		struct is_compatible_tuple : std::false_type {};
+		template<typename T, typename U>
+		struct is_compatible_tuple<T, U, std::index_sequence<>> : std::true_type {};
+		template<typename T, typename U, std::size_t I, std::size_t... Is> requires std::is_convertible_v<std::tuple_element_t<I, U>, T>
+		struct is_compatible_tuple<T, U, std::index_sequence<I, Is...>> : is_compatible_tuple<T, U, std::index_sequence<Is...>> {};
+
+		template<typename T, typename U>
+		struct is_compatible_arg : std::is_convertible<U, T> {};
+		template<typename T, has_tuple_size U>
+		struct is_compatible_arg<T, U> : is_compatible_tuple<T, U, std::make_index_sequence<std::tuple_size_v<U>>> {};
 
 		template<typename T, std::size_t N, typename... Ts>
-		concept compatible_args = (std::is_convertible_v<arg_value_t<Ts>, T> && ...) && (arg_extent_v<Ts> + ...) == N;
+		concept compatible_args = std::conjunction_v<is_compatible_arg<T, Ts>...> && (arg_extent_v<Ts> + ...) == N;
 	}
 
 	template<typename T, std::size_t N, typename Abi>
@@ -137,35 +131,28 @@ namespace sek
 		SEK_MAKE_VEC_GETTERS(basic_vec_mask, value_type, r, g, b, a)
 
 	private:
-		template<std::size_t I = 0, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...vals) noexcept requires (!detail::vec_mask_instance<U>)
+		template<std::size_t J, std::size_t I, std::size_t... Is, typename U, typename... Us>
+		SEK_FORCEINLINE void fill_tuple(std::index_sequence<I, Is...>, U &&x) noexcept
 		{
-			if constexpr (I < N)
-			{
-				operator[](I) = static_cast<T>(x);
-				if constexpr (sizeof...(Us) != 0)
-					fill_impl<I + 1>(std::forward<Us>(vals)...);
-				else
-				fill_impl<I + 1>(x);
-			}
+			using std::get;
+			operator[](J) = static_cast<value_type>(get<I>(x));
+			if constexpr (sizeof...(Is) != 0) fill_tuple<J + 1>(std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
-		template<std::size_t I = 0, std::size_t J = 0, std::size_t M, typename OtherAbi, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(const basic_vec_mask<U, M, OtherAbi> &other, Us &&...vals) noexcept
+		template<std::size_t I = 0, typename U, typename... Us>
+		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...vals) noexcept
 		{
-			if constexpr (J < M)
+			if constexpr(I < N)
 			{
-				operator[](I) = static_cast<T>(other[J]);
-				fill_impl<I + 1, J + 1>(other, std::forward<Us>(vals)...);
+				if constexpr (requires{ typename std::tuple_size<U>; })
+					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(x));
+				else
+					operator[](I) = static_cast<value_type>(x);
+				if constexpr(sizeof...(Us) != 0) fill_impl<I + detail::arg_extent_v<U>>(std::forward<Us>(vals)...);
 			}
-			else if constexpr (sizeof...(Us) != 0)
-				fill_impl<I>(std::forward<Us>(vals)...);
 		}
 
 		simd_type m_data;
 	};
-
-	template<typename... Us>
-	basic_vec_mask(Us &&...) -> basic_vec_mask<detail::combine_value<Us...>, (detail::arg_extent_v<Us> + ...), detail::combine_abi<Us...>>;
 
 	/** Returns reference to the underlying `dpm::simd_mask` object of the vector mask. */
 	template<typename T, std::size_t N, typename Abi>
@@ -325,35 +312,28 @@ namespace sek
 		SEK_MAKE_VEC_GETTERS(basic_vec, value_type, r, g, b, a)
 
 	private:
-		template<std::size_t I = 0, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...vals) noexcept requires (!detail::vec_instance<U>)
+		template<std::size_t J, std::size_t I, std::size_t... Is, typename U, typename... Us>
+		SEK_FORCEINLINE void fill_tuple(std::index_sequence<I, Is...>, U &&x) noexcept
 		{
-			if constexpr (I < N)
-			{
-				operator[](I) = static_cast<T>(x);
-				if constexpr (sizeof...(Us) != 0)
-					fill_impl<I + 1>(std::forward<Us>(vals)...);
-				else
-				fill_impl<I + 1>(x);
-			}
+			using std::get;
+			operator[](J) = static_cast<value_type>(get<I>(x));
+			if constexpr (sizeof...(Is) != 0) fill_tuple<J + 1>(std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
-		template<std::size_t I = 0, std::size_t J = 0, std::size_t M, typename OtherAbi, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(const basic_vec<U, M, OtherAbi> &other, Us &&...vals) noexcept
+		template<std::size_t I = 0, typename U, typename... Us>
+		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...vals) noexcept
 		{
-			if constexpr (J < M)
+			if constexpr(I < N)
 			{
-				operator[](I) = static_cast<T>(other[J]);
-				fill_impl<I + 1, J + 1>(other, std::forward<Us>(vals)...);
+				if constexpr (requires{ typename std::tuple_size<U>; })
+					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(x));
+				else
+					operator[](I) = static_cast<value_type>(x);
+				if constexpr(sizeof...(Us) != 0) fill_impl<I + detail::arg_extent_v<U>>(std::forward<Us>(vals)...);
 			}
-			else if constexpr (sizeof...(Us) != 0)
-				fill_impl<I>(std::forward<Us>(vals)...);
 		}
 
 		simd_type m_data;
 	};
-
-	template<typename... Us>
-	basic_vec(Us &&...) -> basic_vec<detail::combine_value<Us...>, (detail::arg_extent_v<Us> + ...), detail::combine_abi<Us...>>;
 
 	/** Returns reference to the underlying `dpm::simd` object of the vector. */
 	template<typename T, std::size_t N, typename Abi>
@@ -541,13 +521,3 @@ namespace sek
 	}
 #pragma endregion
 }
-
-template<typename T, std::size_t N, typename Abi>
-struct std::tuple_size<sek::basic_vec_mask<T, N, Abi>> : std::integral_constant<std::size_t, N> {};
-template<std::size_t I, typename T, std::size_t N, typename Abi>
-struct std::tuple_element<I, sek::basic_vec_mask<T, N, Abi>> { using type = typename sek::basic_vec_mask<T, N, Abi>::value_type; };
-
-template<typename T, std::size_t N, typename Abi>
-struct std::tuple_size<sek::basic_vec<T, N, Abi>> : std::integral_constant<std::size_t, N> {};
-template<std::size_t I, typename T, std::size_t N, typename Abi>
-struct std::tuple_element<I, sek::basic_vec<T, N, Abi>> { using type = typename sek::basic_vec<T, N, Abi>::value_type; };

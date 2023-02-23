@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "define.hpp"
 
 namespace sek
@@ -31,3 +33,18 @@ namespace sek
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	class basic_mat;
 }
+
+template<typename T, std::size_t N, typename Abi>
+struct std::tuple_size<sek::basic_vec_mask<T, N, Abi>> : std::integral_constant<std::size_t, N> {};
+template<std::size_t I, typename T, std::size_t N, typename Abi>
+struct std::tuple_element<I, sek::basic_vec_mask<T, N, Abi>> { using type = typename sek::basic_vec_mask<T, N, Abi>::value_type; };
+
+template<typename T, std::size_t N, typename Abi>
+struct std::tuple_size<sek::basic_vec<T, N, Abi>> : std::integral_constant<std::size_t, N> {};
+template<std::size_t I, typename T, std::size_t N, typename Abi>
+struct std::tuple_element<I, sek::basic_vec<T, N, Abi>> { using type = typename sek::basic_vec<T, N, Abi>::value_type; };
+
+template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
+struct std::tuple_size<sek::basic_mat<T, NCols, NRows, Abi>> : std::integral_constant<std::size_t, NCols> {};
+template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
+struct std::tuple_element<I, sek::basic_mat<T, NCols, NRows, Abi>> { using type = typename sek::basic_mat<T, NCols, NRows, Abi>::col_type; };
