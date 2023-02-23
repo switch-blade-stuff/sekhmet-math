@@ -4,5 +4,4 @@
 
 #pragma once
 
-#include "detail/vector/type.hpp"
-#include "detail/vector/operators.hpp"
+#include "detail/type_vec.hpp"

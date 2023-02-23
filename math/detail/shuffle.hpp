@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../fwd.hpp"
+#include "fwd.hpp"
 
-namespace sek::math
+namespace sek
 {
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
 	[[nodiscard]] inline basic_vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(basic_vec_mask<T, N, Abi> x) noexcept;

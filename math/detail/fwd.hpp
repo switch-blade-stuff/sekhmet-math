@@ -4,18 +4,9 @@
 
 #pragma once
 
-#ifndef DPM_INLINE_EXTENSIONS
-#define DPM_INLINE_EXTENSIONS
-#endif
-#ifndef DPM_HANDLE_ERRORS
-#define DPM_HANDLE_ERRORS
-#endif
+#include "define.hpp"
 
-#include <dpm/simd.hpp>
-
-#define SEK_FORCEINLINE DPM_FORCEINLINE
-
-namespace sek::math
+namespace sek
 {
 	namespace abi { using namespace dpm::simd_abi; }
 	using dpm::is_abi_tag;
@@ -36,4 +27,7 @@ namespace sek::math
 	[[nodiscard]] constexpr typename basic_vec<T, N, Abi>::simd_type &to_simd(basic_vec<T, N, Abi> &x) noexcept;
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr const typename basic_vec<T, N, Abi>::simd_type &to_simd(const basic_vec<T, N, Abi> &x) noexcept;
+
+	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
+	class basic_mat;
 }
