@@ -5,6 +5,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <ranges>
 
 #include "shuffle.hpp"
 
@@ -82,23 +83,63 @@ namespace sek
 		static inline void assert_idx(std::size_t i) { if (i >= N) [[unlikely]] throw std::range_error("Element index out of range"); }
 
 	public:
-		SEK_FORCEINLINE basic_vec_mask() noexcept : basic_vec_mask(false) {}
+		constexpr basic_vec_mask() noexcept = default;
+
+		/** Initializes elements of the vector mask to `static_cast<value_type>(x)`. */
 		template<typename U>
 		SEK_FORCEINLINE basic_vec_mask(U x) noexcept requires std::is_convertible_v<U, value_type> : m_data(x) {}
+		/** @brief Initializes vector mask from \a vals.
+		 *
+		 * Given argument `arg` from \a args of type `U`, if `U` is a tuple-like type, initializes `std::tuple_size_v<std::remove_cvref_t<U>>`
+		 * elements of the vector mask as `static_cast<value_type>(get<I>(arg))`, where `I` is the index of the corresponding element in `U`.
+		 * Otherwise, if `U` is not tuple-like, initializes the `N`th element of the vector mask as `static_cast<value_type>(arg)`. */
+		template<typename... Args>
+		basic_vec_mask(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...> { fill_impl(std::forward<Args>(args)...); }
 
-		template<typename... Us>
-		basic_vec_mask(Us ...vals) noexcept requires detail::compatible_args<value_type, N, Us...> { fill_impl(std::move(vals)...); }
-		template<typename... Us>
-		basic_vec_mask &fill(Us ...vals) noexcept requires detail::compatible_args<value_type, N, Us...>
+		/** Initializes vector mask from a range of elements pointed to by iterators \a first and \a last.
+		 * @throw std::range_error If size of the range is less than `size()`. */
+		template<std::forward_iterator I>
+		basic_vec_mask(const I &first, const I &last) requires std::is_convertible_v<std::iter_value_t<I>, value_type>
 		{
-			fill_impl(std::move(vals)...);
+			for (std::size_t i = 0; i < size(); ++i, ++first)
+			{
+				if (first == last) [[unlikely]] throw std::range_error("Iterator distance is less than vector mask size");
+				operator[](i) = static_cast<value_type>(*first);
+			}
+		}
+		/** @copydoc basic_vec_mask */
+		template<std::contiguous_iterator I>
+		basic_vec_mask(const I &first, const I &last) requires std::is_convertible_v<std::iter_value_t<I>, value_type>
+		{
+			if (std::distance(first, last) < static_cast<std::ptrdiff_t>(N)) [[unlikely]]
+				throw std::range_error("Iterator distance is less than vector mask size");
+
+			if constexpr (N > 1)
+				m_data.copy_from(std::to_address(first), dpm::element_aligned);
+			else
+				m_data[0] = static_cast<value_type>(*first);
+		}
+		/** Initializes vector mask from a range of elements.
+		 * @throw std::range_error If size of the range is less than `size()`. */
+		template<std::ranges::forward_range R>
+		basic_vec_mask(const R &data) requires std::is_convertible_v<std::ranges::range_value_t<R>, value_type> : basic_vec_mask(std::ranges::begin(data), std::ranges::end(data)) {}
+
+		template<typename U, typename OtherAbi>
+		basic_vec_mask(const dpm::simd_mask<U, OtherAbi> &data) noexcept : m_data(data) {}
+		template<typename U, typename OtherAbi>
+		basic_vec_mask(const basic_vec_mask<U, N, OtherAbi> &other) noexcept : basic_vec_mask(to_simd(other)) {}
+
+		/** @brief Fills vector mask from \a args.
+		 *
+		 * Given argument `arg` from \a args of type `U`, if `U` is a tuple-like type, assigns `std::tuple_size_v<std::remove_cvref_t<U>>`
+		 * elements of the vector mask from `static_cast<value_type>(get<I>(arg))`, where `I` is the index of the corresponding element in `U`.
+		 * Otherwise, if `U` is not tuple-like, assigns the `N`th element of the vector mask from `static_cast<value_type>(arg)`. */
+		template<typename... Args>
+		basic_vec_mask &fill(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...>
+		{
+			fill_impl(std::forward<Args>(args)...);
 			return *this;
 		}
-
-		template<typename U, typename OtherAbi>
-		SEK_FORCEINLINE basic_vec_mask(const dpm::simd_mask<U, OtherAbi> &data) noexcept : m_data(data) {}
-		template<typename U, typename OtherAbi>
-		SEK_FORCEINLINE basic_vec_mask(const basic_vec_mask<U, N, OtherAbi> &other) noexcept : basic_vec_mask(to_simd(other)) {}
 
 		/** Returns the number of elements in the vector mask. */
 		[[nodiscard]] constexpr std::size_t size() const noexcept { return N; }
@@ -139,7 +180,7 @@ namespace sek
 			if constexpr (sizeof...(Is) != 0) fill_tuple<J + 1>(std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
 		template<std::size_t I = 0, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...vals) noexcept
+		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...args) noexcept
 		{
 			if constexpr(I < N)
 			{
@@ -147,7 +188,7 @@ namespace sek
 					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
-				if constexpr(sizeof...(Us) != 0) fill_impl<I + detail::arg_extent_v<U>>(std::forward<Us>(vals)...);
+				if constexpr(sizeof...(Us) != 0) fill_impl<I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
 			}
 		}
 
@@ -263,23 +304,63 @@ namespace sek
 		static inline void assert_idx(std::size_t i) { if (i >= N) [[unlikely]] throw std::range_error("Element index out of range"); }
 
 	public:
-		SEK_FORCEINLINE basic_vec() noexcept : basic_vec(T{}) {}
+		constexpr basic_vec() noexcept = default;
+
+		/** Initializes elements of the vector to `static_cast<value_type>(x)`. */
 		template<typename U>
 		SEK_FORCEINLINE basic_vec(U x) noexcept requires std::is_convertible_v<U, value_type> : m_data(x) {}
+		/** @brief Initializes vector from \a vals.
+		 *
+		 * Given argument `arg` from \a args of type `U`, if `U` is a tuple-like type, initializes `std::tuple_size_v<std::remove_cvref_t<U>>`
+		 * elements of the vector as `static_cast<value_type>(get<I>(arg))`, where `I` is the index of the corresponding element in `U`.
+		 * Otherwise, if `U` is not tuple-like, initializes the `N`th element of the vector as `static_cast<value_type>(arg)`. */
+		template<typename... Args>
+		basic_vec(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...> { fill_impl(std::forward<Args>(args)...); }
 
-		template<typename... Us>
-		basic_vec(Us ...vals) noexcept requires detail::compatible_args<value_type, N, Us...> { fill_impl(std::move(vals)...); }
-		template<typename... Us>
-		basic_vec &fill(Us ...vals) noexcept requires detail::compatible_args<value_type, N, Us...>
+		/** Initializes vector from a range of elements pointed to by iterators \a first and \a last.
+		 * @throw std::range_error If size of the range is less than `size()`. */
+		template<std::forward_iterator I>
+		basic_vec(const I &first, const I &last) requires std::is_convertible_v<std::iter_value_t<I>, value_type>
 		{
-			fill_impl(std::move(vals)...);
-			return *this;
+			for (std::size_t i = 0; i < size(); ++i, ++first)
+			{
+				if (first == last) [[unlikely]] throw std::range_error("Iterator distance is less than vector mask size");
+				operator[](i) = static_cast<value_type>(*first);
+			}
 		}
+		/** @copydoc basic_vec */
+		template<std::contiguous_iterator I>
+		basic_vec(const I &first, const I &last) requires std::is_convertible_v<std::iter_value_t<I>, value_type>
+		{
+			if (std::distance(first, last) < static_cast<std::ptrdiff_t>(N)) [[unlikely]]
+				throw std::range_error("Iterator distance is less than vector mask size");
+
+			if constexpr (N > 1)
+				m_data.copy_from(std::to_address(first), dpm::element_aligned);
+			else
+				m_data[0] = static_cast<value_type>(*first);
+		}
+		/** Initializes vector from a range of elements.
+		 * @throw std::range_error If size of the range is less than `size()`. */
+		template<std::ranges::forward_range R>
+		basic_vec(const R &data) requires std::is_convertible_v<std::ranges::range_value_t<R>, value_type> : basic_vec(std::ranges::begin(data), std::ranges::end(data)) {}
 
 		template<typename U, typename OtherAbi>
 		SEK_FORCEINLINE basic_vec(const dpm::simd<U, OtherAbi> &data) noexcept : m_data(data) {}
 		template<typename U, typename OtherAbi>
 		SEK_FORCEINLINE basic_vec(const basic_vec<U, N, OtherAbi> &other) noexcept : basic_vec(to_simd(other)) {}
+
+		/** @brief Fills vector from \a args.
+		 *
+		 * Given argument `arg` from \a args of type `U`, if `U` is a tuple-like type, assigns `std::tuple_size_v<std::remove_cvref_t<U>>`
+		 * elements of the vector from `static_cast<value_type>(get<I>(arg))`, where `I` is the index of the corresponding element in `U`.
+		 * Otherwise, if `U` is not tuple-like, assigns the `N`th element of the vector from `static_cast<value_type>(arg)`. */
+		template<typename... Args>
+		basic_vec &fill(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...>
+		{
+			fill_impl(std::forward<Args>(args)...);
+			return *this;
+		}
 
 		/** Returns the number of elements in the vector. */
 		[[nodiscard]] constexpr std::size_t size() const noexcept { return N; }
@@ -320,7 +401,7 @@ namespace sek
 			if constexpr (sizeof...(Is) != 0) fill_tuple<J + 1>(std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
 		template<std::size_t I = 0, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...vals) noexcept
+		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...args) noexcept
 		{
 			if constexpr(I < N)
 			{
@@ -328,11 +409,11 @@ namespace sek
 					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
-				if constexpr(sizeof...(Us) != 0) fill_impl<I + detail::arg_extent_v<U>>(std::forward<Us>(vals)...);
+				if constexpr(sizeof...(Us) != 0) fill_impl<I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
 			}
 		}
 
-		simd_type m_data;
+		simd_type m_data = {};
 	};
 
 	/** Returns reference to the underlying `dpm::simd` object of the vector. */
