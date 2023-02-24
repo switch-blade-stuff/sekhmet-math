@@ -15,4 +15,5 @@ target_sources(${SEK_MATH_PROJECT} INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/errfn.hpp
         ${CMAKE_CURRENT_LIST_DIR}/neari.hpp
         ${CMAKE_CURRENT_LIST_DIR}/fmanip.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/fclass.hpp)
+        ${CMAKE_CURRENT_LIST_DIR}/fclass.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/geom.hpp)

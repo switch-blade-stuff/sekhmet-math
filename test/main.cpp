@@ -5,11 +5,6 @@
 #include <math/vector.hpp>
 #include <math/matrix.hpp>
 
-auto test(sek::vec4<float> v)
-{
-	return sek::ldexp(v, 2);
-}
-
 int main()
 {
 	/* | 1 | 2 | 4 |

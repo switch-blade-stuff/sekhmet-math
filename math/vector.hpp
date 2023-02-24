@@ -14,3 +14,4 @@
 #include "detail/neari.hpp"
 #include "detail/fmanip.hpp"
 #include "detail/fclass.hpp"
+#include "detail/geom.hpp"
