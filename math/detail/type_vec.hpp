@@ -121,6 +121,9 @@ namespace sek
 		/** Returns the number of elements in the vector mask. */
 		[[nodiscard]] constexpr std::size_t size() const noexcept { return N; }
 
+		/** Returns `true` if all elements of the vector mask evaluate to `true`. */
+		[[nodiscard]] SEK_FORCEINLINE operator bool() const noexcept;
+
 		/** Returns reference to the `i`th element of the vector mask.
 		 * @param i Index of the requested element.
 		 * @throw std::range_error In case \a i exceeds `size()`. */
@@ -312,6 +315,9 @@ namespace sek
 	template<typename T, std::size_t N, typename A>
 	[[nodiscard]] SEK_FORCEINLINE std::size_t find_last_set(const basic_vec_mask<T, N, A> &x) noexcept { return find_last_set(to_simd(x)); }
 #pragma endregion
+
+	template<typename T, std::size_t N, typename A>
+	basic_vec_mask<T, N, A>::operator bool() const noexcept { return all_of(*this); }
 
 	template<typename T, std::size_t N, typename Abi>
 	class basic_vec
