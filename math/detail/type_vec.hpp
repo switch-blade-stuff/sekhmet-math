@@ -14,38 +14,14 @@ namespace sek
 	namespace detail
 	{
 		template<typename T>
-		concept has_tuple_size = requires { typename std::void_t<decltype(sizeof(std::tuple_size<T>))>; };
-
-		template<typename T>
-		struct is_vec : std::false_type {};
-		template<typename T, std::size_t N, typename A>
-		struct is_vec<basic_vec<T, N, A>> : std::true_type {};
-		template<typename T>
-		concept vec_instance = is_vec<std::remove_cvref_t<T>>::value;
-
-		template<typename T>
-		struct is_vec_mask : std::false_type {};
-		template<typename T, std::size_t N, typename A>
-		struct is_vec_mask<basic_vec_mask<T, N, A>> : std::true_type {};
-		template<typename T>
-		concept vec_mask_instance = is_vec_mask<std::remove_cvref_t<T>>::value;
-
-		template<typename... Ts>
-		struct all_same : std::false_type {};
-		template<typename T, std::same_as<T>... Ts>
-		struct all_same<T, Ts...> : std::true_type {};
-
-		template<typename, typename>
-		struct common_tuple_type;
-		template<typename T, std::size_t... Is>
-		struct common_tuple_type<T, std::index_sequence<Is...>> : std::common_type<std::tuple_element_t<Is, T>...> {};
+		concept has_tuple_size = requires { typename std::void_t<decltype(sizeof(std::tuple_size<std::remove_cvref_t<T>>))>; };
 
 		template<typename>
 		struct arg_extent : std::integral_constant<std::size_t, 1> {};
 		template<has_tuple_size T>
-		struct arg_extent<T> : std::tuple_size<T> {};
+		struct arg_extent<T> : std::tuple_size<std::remove_cvref_t<T>> {};
 		template<typename T>
-		inline constexpr auto arg_extent_v = arg_extent<std::remove_cvref_t<T>>::value;
+		inline constexpr auto arg_extent_v = arg_extent<T>::value;
 
 		template<typename, typename, typename>
 		struct is_compatible_tuple : std::false_type {};
@@ -60,7 +36,7 @@ namespace sek
 		struct is_compatible_arg<T, U> : is_compatible_tuple<T, U, std::make_index_sequence<std::tuple_size_v<U>>> {};
 
 		template<typename T, std::size_t N, typename... Ts>
-		concept compatible_args = std::conjunction_v<is_compatible_arg<T, Ts>...> && (arg_extent_v<Ts> + ...) == N;
+		concept compatible_args = std::conjunction_v<is_compatible_arg<T, std::remove_cvref_t<Ts>>...> && (arg_extent_v<Ts> + ...) == N;
 	}
 
 	template<typename T, std::size_t N, typename Abi>
@@ -185,8 +161,8 @@ namespace sek
 		{
 			if constexpr (I < N)
 			{
-				if constexpr (requires{ typename std::tuple_size<U>; })
-					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(x));
+				if constexpr (detail::has_tuple_size<U>)
+					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<U>>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
 				if constexpr (sizeof...(Us) != 0) fill_impl < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
@@ -221,6 +197,9 @@ namespace sek
 	/** Alias for vector mask that uses implementation-defined ABI deduced from it's size, type and optional ABI hint. */
 	template<typename T, std::size_t N, typename Abi = abi::fixed_size<N>>
 	using vec_mask = basic_vec_mask<T, N, abi::deduce_t<T, N, Abi>>;
+	/** Alias for deduced-ABI vector mask of 1 element. */
+	template<typename T, typename Abi = abi::fixed_size<1>>
+	using vec1_mask = vec_mask<T, 1, Abi>;
 	/** Alias for deduced-ABI vector mask of 2 elements. */
 	template<typename T, typename Abi = abi::fixed_size<2>>
 	using vec2_mask = vec_mask<T, 2, Abi>;
@@ -234,6 +213,9 @@ namespace sek
 	/** Alias for vector mask that uses compatible (implementation-defined) ABI. */
 	template<typename T, std::size_t N>
 	using compat_vec_mask = basic_vec_mask<T, N, abi::deduce_t<T, N, abi::compatible<T>>>;
+	/** Alias for compatible-ABI vector mask of 1 element. */
+	template<typename T>
+	using compat_vec1_mask = compat_vec_mask<T, 1>;
 	/** Alias for compatible-ABI vector mask of 2 elements. */
 	template<typename T>
 	using compat_vec2_mask = compat_vec_mask<T, 2>;
@@ -247,6 +229,9 @@ namespace sek
 	/** Alias for vector mask that uses packed (non-vectorized) ABI. */
 	template<typename T, std::size_t N>
 	using packed_vec_mask = basic_vec_mask<T, N, abi::packed_buffer<N>>;
+	/** Alias for packed-ABI vector mask of 1 element. */
+	template<typename T>
+	using packed_vec1_mask = packed_vec_mask<T, 1>;
 	/** Alias for packed-ABI vector mask of 2 elements. */
 	template<typename T>
 	using packed_vec2_mask = packed_vec_mask<T, 2>;
@@ -450,8 +435,8 @@ namespace sek
 		{
 			if constexpr (I < N)
 			{
-				if constexpr (requires{ typename std::tuple_size<U>; })
-					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(x));
+				if constexpr (detail::has_tuple_size<U>)
+					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<U>>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
 				if constexpr (sizeof...(Us) != 0) fill_impl < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
@@ -486,6 +471,9 @@ namespace sek
 	/** Alias for vector that uses implementation-defined ABI deduced from it's size, type and optional ABI hint. */
 	template<typename T, std::size_t N, typename Abi = abi::fixed_size<N>>
 	using vec = basic_vec<T, N, abi::deduce_t<T, N, Abi>>;
+	/** Alias for deduced-ABI vector of 1 element. */
+	template<typename T, typename Abi = abi::fixed_size<1>>
+	using vec1 = vec<T, 1, Abi>;
 	/** Alias for deduced-ABI vector of 2 elements. */
 	template<typename T, typename Abi = abi::fixed_size<2>>
 	using vec2 = vec<T, 2, Abi>;
@@ -499,6 +487,9 @@ namespace sek
 	/** Alias for vector that uses compatible (implementation-defined) ABI. */
 	template<typename T, std::size_t N>
 	using compat_vec = basic_vec<T, N, abi::deduce_t<T, N, abi::compatible<T>>>;
+	/** Alias for compatible-ABI vector of 1 element. */
+	template<typename T>
+	using compat_vec1 = compat_vec<T, 1>;
 	/** Alias for compatible-ABI vector of 2 elements. */
 	template<typename T>
 	using compat_vec2 = compat_vec<T, 2>;
@@ -512,6 +503,9 @@ namespace sek
 	/** Alias for vector that uses packed (non-vectorized) ABI. */
 	template<typename T, std::size_t N>
 	using packed_vec = basic_vec<T, N, abi::packed_buffer<N>>;
+	/** Alias for packed-ABI vector of 1 element. */
+	template<typename T>
+	using packed_vec1 = packed_vec<T, 1>;
 	/** Alias for packed-ABI vector of 2 elements. */
 	template<typename T>
 	using packed_vec2 = packed_vec<T, 2>;

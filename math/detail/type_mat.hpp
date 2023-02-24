@@ -9,6 +9,17 @@
 
 namespace sek
 {
+	namespace detail
+	{
+		template<std::size_t N>
+		concept is_square = []()
+		{
+			for (std::size_t i = 0; i < N; ++i)
+				if (i * i == N) return true;
+			return false;
+		}();
+	}
+
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	class basic_mat
 	{
@@ -26,6 +37,16 @@ namespace sek
 		static inline void assert_rows(std::size_t i) { if (i >= NRows) [[unlikely]] throw std::range_error("Row index out of range"); }
 
 	public:
+		/** Initializes a null (zero) matrix. */
+		constexpr basic_mat() noexcept = default;
+
+		/** Initializes the matrix where elements along the main diagonal are set to `static_cast<value_type>(x)`, and the rest are zero. */
+		template<typename U>
+		SEK_FORCEINLINE basic_mat(U &&x) noexcept requires std::is_convertible_v<U, value_type> { fill_diag(std::forward<U>(x)); }
+		/** Initializes columns of the matrix from \a args tuples. Remaining columns are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
+		template<detail::has_tuple_size... Args>
+		SEK_FORCEINLINE basic_mat(Args &&...args) noexcept requires (sizeof...(Args) <= NCols && ((std::tuple_size_v<std::remove_cvref_t<Args>> <= NRows) && ...)) { fill_cols(std::forward<Args>(args)...); }
+
 		/** Returns the number of columns in the matrix. */
 		[[nodiscard]] constexpr std::size_t cols() const noexcept { return NCols; }
 		/** Returns the number of rows in the matrix. */
@@ -40,7 +61,7 @@ namespace sek
 			assert_rows(i);
 			row_type result = {};
 			for (std::size_t j = 0; j < NCols; ++j)
-				result[i] = m_data[i][j];
+				result[j] = m_data[j][i];
 			return result;
 		}
 
@@ -117,7 +138,36 @@ namespace sek
 #endif
 
 	private:
-		col_type m_data[NCols];
+		template<std::size_t I = 0, typename U>
+		DPM_FORCEINLINE void fill_diag(U &&value) noexcept
+		{
+			if constexpr (I < NCols && I < NRows)
+			{
+				m_data[I][I] = static_cast<value_type>(value);
+				fill_diag<I + 1>(std::forward<U>(value));
+			}
+		}
+		template<std::size_t I = 0, std::size_t J = 0, typename U, typename... Args>
+		DPM_FORCEINLINE void fill_cols(U &&value, Args &&...args) noexcept
+		{
+			if constexpr (J < NRows)
+			{
+				using std::get;
+
+				/* If the row index is within the tuple argument, use tuple value. Otherwise, initialize the main diagonal. */
+				if constexpr (J < std::tuple_size_v<std::remove_cvref_t<U>>)
+					m_data[I][J] = static_cast<value_type>(get<J>(value));
+				else if constexpr (J == I)
+					m_data[I][J] = static_cast<value_type>(1);
+				fill_cols<I, J + 1>(std::forward<U>(value), std::forward<Args>(args)...);
+			}
+			else if constexpr (sizeof...(Args) != 0) /* Move onto the next column. */
+				fill_cols<I + 1>(std::forward<Args>(args)...);
+			else
+				fill_diag<I + 1>(1);
+		}
+
+		col_type m_data[NCols] = {};
 	};
 
 	/** Gets the `I`th column of the matrix. */
