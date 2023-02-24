@@ -6,6 +6,15 @@
 
 #include <utility>
 
+#ifndef DPM_INLINE_EXTENSIONS
+#define DPM_INLINE_EXTENSIONS
+#endif
+#ifndef DPM_HANDLE_ERRORS
+#define DPM_HANDLE_ERRORS
+#endif
+
+#include <dpm/type.hpp>
+
 #include "define.hpp"
 
 namespace sek
