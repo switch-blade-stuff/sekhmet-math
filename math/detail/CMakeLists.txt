@@ -6,4 +6,13 @@ target_sources(${SEK_MATH_PROJECT} INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/type_vec.hpp
         ${CMAKE_CURRENT_LIST_DIR}/type_mat.hpp
         ${CMAKE_CURRENT_LIST_DIR}/blend.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/mbase.hpp)
+        ${CMAKE_CURRENT_LIST_DIR}/math_fwd.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/mbase.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/power.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/expon.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/trig.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/hypbl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/errfn.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/neari.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/fmanip.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/fclass.hpp)

@@ -4,18 +4,10 @@
 
 #pragma once
 
-#include "type_vec.hpp"
-
-#include <dpm/math.hpp>
+#include "math_fwd.hpp"
 
 namespace sek
 {
-	namespace detail
-	{
-		template<typename... Ts>
-		using promote_t = std::conditional_t<std::disjunction_v<std::is_same<Ts, long double>...>, long double, double>;
-	}
-
 	/** Calculates absolute value of elements in vector \a x. */
 	template<typename T, std::size_t N, typename A>
 	[[nodiscard]] DPM_FORCEINLINE basic_vec<T, N, A> abs(const basic_vec<T, N, A> &x) noexcept { return {dpm::abs(to_simd(x))}; }
