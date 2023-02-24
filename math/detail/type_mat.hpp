@@ -5,6 +5,7 @@
 #pragma once
 
 #include "type_vec.hpp"
+#include "mbase.hpp"
 
 namespace sek
 {
@@ -228,21 +229,42 @@ namespace sek
 #pragma endregion
 
 #pragma region "basic_mat operators"
+	template<typename T, std::size_t CR, std::size_t NR, typename AM, typename AV>
+	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
+	{
+		basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> result = a[0] * b[0];
+		for (std::size_t i = 1; i < CR; ++i) result = fmadd(a[i], {b[i]}, result);
+		return result;
+	}
+	template<typename T, std::size_t CR, std::size_t R0, std::size_t C1, typename A0, typename A1>
+	[[nodiscard]] SEK_FORCEINLINE basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> operator*(const basic_mat<T, CR, R0, A0> &a, const basic_mat<T, C1, CR, A1> &b) noexcept
+	{
+		basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> result;
+		for (std::size_t i = 0; i < C1; ++i)
+		{
+			auto col = a[0] * b[i][0];
+			for (std::size_t j = 1; j < CR; ++j)
+				col = fmadd(a[j], {b[i][j]}, col);
+			result[i] = col;
+		}
+		return result;
+	}
+
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	[[nodiscard]] SEK_FORCEINLINE bool operator==(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
 	{
-		bool result = all_of(a[0] == b[0]);
-		for (std::size_t i = 1; result && i < NCols; ++i)
-			result = all_of(a[i] == b[i]);
-		return result;
+		auto cmp = a[0] == b[0];
+		for (std::size_t i = 1; i < NCols; ++i)
+			cmp &= a[i] == b[i];
+		return all_of(cmp);
 	}
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	[[nodiscard]] SEK_FORCEINLINE bool operator!=(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
 	{
-		bool result = none_of(a[0] == b[0]);
-		for (std::size_t i = 1; result && i < NCols; ++i)
-			result = none_of(a[i] == b[i]);
-		return result;
+		auto cmp = a[0] == b[0];
+		for (std::size_t i = 1; i < NCols; ++i)
+			cmp |= a[i] == b[i];
+		return none_of(cmp);
 	}
 #pragma endregion
 }
