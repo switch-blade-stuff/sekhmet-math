@@ -525,9 +525,14 @@ namespace sek
 
 #pragma region "basic_vec operators"
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> operator++(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)++; }) { return to_simd(x)++; }
+	SEK_FORCEINLINE basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &x) noexcept requires (requires { +to_simd(x); }) { return {+to_simd(x)}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> operator--(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)--; }) { return to_simd(x)--; }
+	SEK_FORCEINLINE basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &x) noexcept requires (requires { -to_simd(x); }) { return {-to_simd(x)}; }
+
+	template<typename T, std::size_t N, typename Abi>
+	SEK_FORCEINLINE basic_vec<T, N, Abi> operator++(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)++; }) { return {to_simd(x)++}; }
+	template<typename T, std::size_t N, typename Abi>
+	SEK_FORCEINLINE basic_vec<T, N, Abi> operator--(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)--; }) { return {to_simd(x)--}; }
 	template<typename T, std::size_t N, typename Abi>
 	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator++(basic_vec<T, N, Abi> &x) noexcept requires (requires { ++to_simd(x); }) { return ++to_simd(x); }
 	template<typename T, std::size_t N, typename Abi>

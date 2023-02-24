@@ -280,14 +280,14 @@ namespace sek
 
 #pragma region "basic_mat operators"
 	template<typename T, std::size_t CR, std::size_t NR, typename AM, typename AV>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
+	[[nodiscard]] inline basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
 	{
 		basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> result = a[0] * b[0];
 		for (std::size_t i = 1; i < CR; ++i) result = fmadd(a[i], {b[i]}, result);
 		return result;
 	}
 	template<typename T, std::size_t CR, std::size_t R0, std::size_t C1, typename A0, typename A1>
-	[[nodiscard]] SEK_FORCEINLINE basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> operator*(const basic_mat<T, CR, R0, A0> &a, const basic_mat<T, C1, CR, A1> &b) noexcept
+	[[nodiscard]] inline basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> operator*(const basic_mat<T, CR, R0, A0> &a, const basic_mat<T, C1, CR, A1> &b) noexcept
 	{
 		basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> result;
 		for (std::size_t i = 0; i < C1; ++i)
