@@ -9,10 +9,9 @@
 namespace sek
 {
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
-	[[nodiscard]] inline basic_vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(basic_vec_mask<T, N, Abi> x) noexcept;
-
+	[[nodiscard]] inline basic_vec<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(const basic_vec<T, N, Abi> &x) noexcept;
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
-	[[nodiscard]] inline basic_vec<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(basic_vec<T, N, Abi> x) noexcept;
+	[[nodiscard]] inline basic_vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(const basic_vec_mask<T, N, Abi> &x) noexcept;
 }
 
 /* Vector API exposes convenience element shuffles (xxx, xxy, xxz, etc.). These macros are used to generate all possible

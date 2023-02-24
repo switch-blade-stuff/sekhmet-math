@@ -121,28 +121,16 @@ namespace sek
 
 	/** Gets the `I`th column of the matrix. */
 	template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] constexpr typename basic_mat<T, NCols, NRows, Abi>::col_type &get(basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols)
-	{
-		return x[I];
-	}
+	[[nodiscard]] constexpr typename basic_mat<T, NCols, NRows, Abi>::col_type &get(basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols) { return x[I]; }
 	/** @copydoc get */
 	template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] constexpr const typename basic_mat<T, NCols, NRows, Abi>::col_type &get(const basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols)
-	{
-		return x[I];
-	}
+	[[nodiscard]] constexpr const typename basic_mat<T, NCols, NRows, Abi>::col_type &get(const basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols) { return x[I]; }
 	/** Gets the `J`th element of the `I`th column of the matrix. */
 	template<std::size_t I, std::size_t J, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] inline auto &get(basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols && J < NRows)
-	{
-		return x[I][J];
-	}
+	[[nodiscard]] inline auto &get(basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols && J < NRows) { return x[I][J]; }
 	/** @copydoc get */
 	template<std::size_t I, std::size_t J, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] inline auto get(const basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols && J < NRows)
-	{
-		return x[I][J];
-	}
+	[[nodiscard]] inline auto get(const basic_mat<T, NCols, NRows, Abi> &x) noexcept requires (I < NCols && J < NRows) { return x[I][J]; }
 
 #pragma region "basic_mat aliases"
 	/** Alias for matrix that uses implementation-defined ABI deduced from it's size, type and optional ABI hint. */

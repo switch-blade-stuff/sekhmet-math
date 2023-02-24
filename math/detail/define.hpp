@@ -4,14 +4,7 @@
 
 #pragma once
 
-#ifndef DPM_INLINE_EXTENSIONS
-#define DPM_INLINE_EXTENSIONS
-#endif
-#ifndef DPM_HANDLE_ERRORS
-#define DPM_HANDLE_ERRORS
-#endif
-
-#include <dpm/simd.hpp>
+#include <dpm/debug.hpp>
 
 #define SEK_UNREACHABLE() DPM_UNREACHABLE()
 #define SEK_FORCEINLINE DPM_FORCEINLINE
