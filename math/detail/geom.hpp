@@ -26,13 +26,10 @@ namespace sek
 	namespace detail
 	{
 		/* Dot product of a vector with itself is assumed to never be negative, as such no error checking is needed. */
-		template<typename T>
-		[[nodiscard]] inline T do_sqrt(T dp) noexcept { return static_cast<T>(std::sqrt(dp)); }
-		template<typename T>
-		[[nodiscard]] inline T do_rsqrt(T dp) noexcept { return static_cast<T>(1) / do_sqrt(dp); }
 #ifdef __SSE__
 		[[nodiscard]] inline float do_sqrt(float dp) noexcept { return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(dp))); }
-		[[nodiscard]] inline float do_rsqrt(float dp) noexcept { return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(dp))); }
+		/* rsqrt breaks constant folding and is less precise than 1 / sqrt(x). */
+		//[[nodiscard]] inline float do_rsqrt(float dp) noexcept { return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(dp))); }
 #endif
 #ifdef __SSE2__
 		[[nodiscard]] inline double do_sqrt(double dp) noexcept
@@ -41,6 +38,10 @@ namespace sek
 			return _mm_cvtsd_f64(_mm_sqrt_sd(v_dp, v_dp));
 		}
 #endif
+		template<typename T>
+		[[nodiscard]] inline T do_sqrt(T dp) noexcept { return static_cast<T>(std::sqrt(dp)); }
+		template<typename T>
+		[[nodiscard]] inline T do_rsqrt(T dp) noexcept { return static_cast<T>(1) / do_sqrt(dp); }
 
 		template<typename T>
 		[[nodiscard]] inline T do_fma(T a, T b, T c) noexcept { return a * b + c; }

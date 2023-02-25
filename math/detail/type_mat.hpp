@@ -11,6 +11,18 @@ namespace sek
 {
 	namespace detail
 	{
+		template<typename T, typename MA, typename VA>
+		[[nodiscard]] inline basic_mat<T, 4, 4, MA> impl_look_at_rh(const basic_vec<T, 3, VA> &org, const basic_vec<T, 3, VA> &dir, const basic_vec<T, 3, VA> &up) noexcept;
+		template<typename T, typename MA, typename VA>
+		[[nodiscard]] inline basic_mat<T, 4, 4, MA> impl_look_at_lh(const basic_vec<T, 3, VA> &org, const basic_vec<T, 3, VA> &dir, const basic_vec<T, 3, VA> &up) noexcept;
+
+		template<typename>
+		struct is_mat : std::false_type {};
+		template<typename T, std::size_t C, std::size_t R, typename A>
+		struct is_mat<basic_mat<T, C, R, A>> : std::true_type {};
+
+		template<typename T, std::size_t Rows>
+		concept compatible_col = detail::has_tuple_size<T> && !is_mat<T>::value && std::tuple_size_v<T> <= Rows;
 		template<std::size_t N>
 		concept is_square = []()
 		{
@@ -34,7 +46,42 @@ namespace sek
 
 		/** Returns identity matrix. Equivalent to `basic_mat{1}`.
 		 * @note This function is defined only for matrices where `cols() == rows()`. */
-		[[nodiscard]] static basic_mat identity() noexcept requires(NCols == NRows);
+		[[nodiscard]] inline static basic_mat identity() noexcept requires (NCols == NRows);
+
+		/** Creates a look-at transform matrix used to rotate an origin vector \a org in the look direction \a dir using the up direction \a up with default handedness.
+	 	 * @param org Origin vector to be rotated.
+	 	 * @param dir Direction vector to rotate the origin towards.
+	 	 * @param up Normalized up vector.
+		 * @note This function is defined only for 4x4 matrices. */
+		template<typename A>
+		[[nodiscard]] static SEK_FORCEINLINE basic_mat look_at(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
+		{
+#ifndef SEK_FORCE_LEFT_HANDED
+			return look_at_rh(org, dir, up);
+#else
+			return look_at_lh(org, dir, up);
+#endif
+		}
+		/** Creates a right-handed look-at transform matrix used to rotate an origin vector \a org in the look direction \a dir using the up direction \a up.
+		 * @param org Origin vector to be rotated.
+		 * @param dir Direction vector to rotate the origin towards.
+		 * @param up Normalized up vector.
+		 * @note This function is defined only for 4x4 matrices. */
+		template<typename A>
+		[[nodiscard]] static basic_mat look_at_rh(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
+		{
+			return detail::impl_look_at_rh<T, Abi, A>(org, dir, up);
+		}
+		/** Creates left-handed look-at transform matrix used to rotate an origin vector \a org in the look direction \a dir using the up direction \a up.
+		 * @param org Origin vector to be rotated.
+		 * @param dir Direction vector to rotate the origin towards.
+		 * @param up Normalized up vector.
+		 * @note This function is defined only for 4x4 matrices. */
+		template<typename A>
+		[[nodiscard]] static basic_mat look_at_lh(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
+		{
+			return detail::impl_look_at_lh<T, Abi, A>(org, dir, up);
+		}
 
 	private:
 		static inline void assert_cols(std::size_t i) { if (i >= NCols) [[unlikely]] throw std::range_error("Column index out of range"); }
@@ -47,9 +94,20 @@ namespace sek
 		/** Initializes the matrix where elements along the main diagonal are set to `static_cast<value_type>(x)`, and the rest are zero. */
 		template<typename U>
 		basic_mat(U &&x) noexcept requires std::is_convertible_v<U, value_type> { fill_diag(std::forward<U>(x)); }
-		/** Initializes columns of the matrix from \a args tuples. Remaining columns are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
-		template<detail::has_tuple_size... Args>
-		basic_mat(Args &&...args) noexcept requires (sizeof...(Args) <= NCols && ((std::tuple_size_v<std::remove_cvref_t<Args>> <= NRows) && ...)) { fill_cols(std::forward<Args>(args)...); }
+		/** Initializes columns of the matrix from \a args tuples. Remaining elements are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
+		template<typename... Args>
+		basic_mat(Args &&...args) noexcept requires ((detail::compatible_col<std::remove_cvref_t<Args>, NRows> && ...)) { fill_cols(std::forward<Args>(args)...); }
+		/** Initializes the matrix from columns of another matrix. Remaining elements are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
+		template<typename U, std::size_t OtherCols, std::size_t OtherRows, typename A>
+		basic_mat(const basic_mat<U, OtherCols, OtherRows, A> &other) noexcept requires std::is_convertible_v<U, value_type>
+		{
+			for (std::size_t i = 0; i < NCols; ++i)
+			{
+				if (i < OtherCols) m_data[i] = col_type{other[i]};
+				for (std::size_t j = OtherRows; j < NRows; ++j)
+					m_data[i][j] = i == j ? T{1} : T{0};
+			}
+		}
 
 		/** Returns the number of columns in the matrix. */
 		[[nodiscard]] constexpr std::size_t cols() const noexcept { return NCols; }

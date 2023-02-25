@@ -5,6 +5,11 @@
 #include <math/vector.hpp>
 #include <math/matrix.hpp>
 
+auto test(sek::mat4x4<float> m, sek::vec3<float> v, sek::vec2<float> sx, sek::vec2<float> sy, sek::vec2<float> sz)
+{
+	return sek::shear(m, v, sx, sy, sz);
+}
+
 int main()
 {
 	/* | 1 | 2 | 4 |

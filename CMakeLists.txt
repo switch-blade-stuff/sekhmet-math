@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
 project(sekhmet-math)
 
+# Library options
+option(SEK_FORCE_LEFT_HANDED "Forces the use of left-handed coordinate system" OFF)
+if (${SEK_FORCE_LEFT_HANDED})
+    add_compile_definitions(SEK_FORCE_LEFT_HANDED)
+endif ()
+
+
 # Add project targets
 set(SEK_MATH_PROJECT ${PROJECT_NAME})
 add_library(${SEK_MATH_PROJECT})

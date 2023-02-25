@@ -70,7 +70,7 @@ namespace sek
 		 * elements of the vector mask as `static_cast<value_type>(get<I>(arg))`, where `I` is the index of the corresponding element in `U`.
 		 * Otherwise, if `U` is not tuple-like, initializes the `N`th element of the vector mask as `static_cast<value_type>(arg)`. */
 		template<typename... Args>
-		basic_vec_mask(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...> { fill_impl(std::forward<Args>(args)...); }
+		basic_vec_mask(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...> { fill_vals(std::forward<Args>(args)...); }
 
 		/** Initializes vector mask from a range of elements pointed to by iterators \a first and \a last.
 		 * @throw std::range_error If size of the range is less than `size()`. */
@@ -103,8 +103,8 @@ namespace sek
 
 		template<typename U, typename OtherAbi>
 		basic_vec_mask(const dpm::simd_mask<U, OtherAbi> &data) noexcept : m_data(data) {}
-		template<typename U, typename OtherAbi>
-		basic_vec_mask(const basic_vec_mask<U, N, OtherAbi> &other) noexcept : basic_vec_mask(to_simd(other)) {}
+		template<typename U, std::size_t M, typename OtherAbi>
+		basic_vec_mask(const basic_vec_mask<U, M, OtherAbi> &other) noexcept { fill_other(other); }
 
 		/** @brief Fills vector mask from \a args.
 		 *
@@ -114,7 +114,7 @@ namespace sek
 		template<typename... Args>
 		basic_vec_mask &fill(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...>
 		{
-			fill_impl(std::forward<Args>(args)...);
+			fill_vals(std::forward<Args>(args)...);
 			return *this;
 		}
 
@@ -152,6 +152,19 @@ namespace sek
 		SEK_MAKE_VEC_GETTERS(basic_vec_mask, value_type, r, g, b, a)
 
 	private:
+		template<std::size_t... Is, typename U, std::size_t M, typename OtherAbi>
+		SEK_FORCEINLINE void fill_other(std::index_sequence<Is...>, const basic_vec_mask<U, M, OtherAbi> &other) noexcept
+		{
+			m_data = dpm::shuffle<Is...>(to_simd(other));
+		}
+		template<typename U, std::size_t M, typename OtherAbi>
+		SEK_FORCEINLINE void fill_other(const basic_vec_mask<U, M, OtherAbi> &other) noexcept
+		{
+			if constexpr (M != N)
+				fill_other(std::make_index_sequence<N>{}, other);
+			else
+				m_data = to_simd(other);
+		}
 		template<std::size_t J, std::size_t I, std::size_t... Is, typename U, typename... Us>
 		SEK_FORCEINLINE void fill_tuple(std::index_sequence<I, Is...>, U &&x) noexcept
 		{
@@ -160,7 +173,7 @@ namespace sek
 			if constexpr (sizeof...(Is) != 0) fill_tuple < J + 1 > (std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
 		template<std::size_t I = 0, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...args) noexcept
+		SEK_FORCEINLINE void fill_vals(U &&x, Us &&...args) noexcept
 		{
 			if constexpr (I < N)
 			{
@@ -168,7 +181,7 @@ namespace sek
 					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<U>>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
-				if constexpr (sizeof...(Us) != 0) fill_impl < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
+				if constexpr (sizeof...(Us) != 0) fill_vals < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
 			}
 		}
 
@@ -335,6 +348,38 @@ namespace sek
 		using simd_type = dpm::simd<T, Abi>;
 		using value_type = typename simd_type::value_type;
 
+		/** Returns an `up` unit vector. Equivalent to `basic_vec{0, 1}`.
+		 * @note This overload is defined only for 2D vectors. */
+		[[nodiscard]] inline static basic_vec up() noexcept requires (std::is_signed_v<T> && N == 2);
+		/** Returns a `down` unit vector. Equivalent to `basic_vec{0, -1}`.
+		 * @note This overload is defined only for 2D vectors. */
+		[[nodiscard]] inline static basic_vec down() noexcept requires (std::is_signed_v<T> && N == 2);
+		/** Returns a `left` unit vector. Equivalent to `basic_vec{-1, 0}`.
+		 * @note This overload is defined only for 2D vectors. */
+		[[nodiscard]] inline static basic_vec left() noexcept requires (std::is_signed_v<T> && N == 2);
+		/** Returns a `right` unit vector. Equivalent to `basic_vec{1, 0}`.
+		 * @note This overload is defined only for 2D vectors. */
+		[[nodiscard]] inline static basic_vec right() noexcept requires (std::is_signed_v<T> && N == 2);
+
+		/** Returns an `up` unit vector. Equivalent to `basic_vec{0, 1, 0}`.
+		 * @note This overload is defined only for 3D vectors. */
+		[[nodiscard]] inline static basic_vec up() noexcept requires (std::is_signed_v<T> && N == 3);
+		/** Returns a `down` unit vector. Equivalent to `basic_vec{0, -1, 0}`.
+		 * @note This overload is defined only for 3D vectors. */
+		[[nodiscard]] inline static basic_vec down() noexcept requires (std::is_signed_v<T> && N == 3);
+		/** Returns a `left` unit vector. Equivalent to `basic_vec{-1, 0, 0}`.
+		 * @note This overload is defined only for 3D vectors. */
+		[[nodiscard]] inline static basic_vec left() noexcept requires (std::is_signed_v<T> && N == 3);
+		/** Returns a `right` unit vector. Equivalent to `basic_vec{1, 0, 0}`.
+		 * @note This overload is defined only for 3D vectors. */
+		[[nodiscard]] inline static basic_vec right() noexcept requires (std::is_signed_v<T> && N == 3);
+		/** Returns a `forward` unit vector. Equivalent to `basic_vec{0, 0, -1}` (or `basic_vec{0, 0, 1}` if using left-handed coordinates).
+		 * @note This overload is defined only for 3D vectors. */
+		[[nodiscard]] inline static basic_vec forward() noexcept requires (std::is_signed_v<T> && N == 3);
+		/** Returns a `backward` unit vector. Equivalent to `basic_vec{0, 0, 1}` (or `basic_vec{0, 0, -1}` if using left-handed coordinates).
+		 * @note This overload is defined only for 3D vectors. */
+		[[nodiscard]] inline static basic_vec backward() noexcept requires (std::is_signed_v<T> && N == 3);
+
 	private:
 		static inline void assert_idx(std::size_t i) { if (i >= N) [[unlikely]] throw std::range_error("Element index out of range"); }
 
@@ -350,7 +395,7 @@ namespace sek
 		 * elements of the vector as `static_cast<value_type>(get<I>(arg))`, where `I` is the index of the corresponding element in `U`.
 		 * Otherwise, if `U` is not tuple-like, initializes the `N`th element of the vector as `static_cast<value_type>(arg)`. */
 		template<typename... Args>
-		basic_vec(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...> { fill_impl(std::forward<Args>(args)...); }
+		basic_vec(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...> { fill_vals(std::forward<Args>(args)...); }
 
 		/** Initializes vector from a range of elements pointed to by iterators \a first and \a last.
 		 * @throw std::range_error If size of the range is less than `size()`. */
@@ -383,8 +428,8 @@ namespace sek
 
 		template<typename U, typename OtherAbi>
 		basic_vec(const dpm::simd<U, OtherAbi> &data) noexcept : m_data(data) {}
-		template<typename U, typename OtherAbi>
-		basic_vec(const basic_vec<U, N, OtherAbi> &other) noexcept : basic_vec(to_simd(other)) {}
+		template<typename U, std::size_t M, typename OtherAbi>
+		basic_vec(const basic_vec<U, M, OtherAbi> &other) noexcept { fill_other(other); }
 
 		/** @brief Fills vector from \a args.
 		 *
@@ -394,7 +439,7 @@ namespace sek
 		template<typename... Args>
 		basic_vec &fill(Args &&...args) noexcept requires detail::compatible_args<value_type, N, Args...>
 		{
-			fill_impl(std::forward<Args>(args)...);
+			fill_vals(std::forward<Args>(args)...);
 			return *this;
 		}
 
@@ -429,6 +474,19 @@ namespace sek
 		SEK_MAKE_VEC_GETTERS(basic_vec, value_type, r, g, b, a)
 
 	private:
+		template<std::size_t... Is, typename U, std::size_t M, typename OtherAbi>
+		SEK_FORCEINLINE void fill_other(std::index_sequence<Is...>, const basic_vec<U, M, OtherAbi> &other) noexcept
+		{
+			m_data = dpm::shuffle<Is...>(to_simd(other));
+		}
+		template<typename U, std::size_t M, typename OtherAbi>
+		SEK_FORCEINLINE void fill_other(const basic_vec<U, M, OtherAbi> &other) noexcept
+		{
+			if constexpr (M != N)
+				fill_other(std::make_index_sequence<N>{}, other);
+			else
+				m_data = to_simd(other);
+		}
 		template<std::size_t J, std::size_t I, std::size_t... Is, typename U, typename... Us>
 		SEK_FORCEINLINE void fill_tuple(std::index_sequence<I, Is...>, U &&x) noexcept
 		{
@@ -437,7 +495,7 @@ namespace sek
 			if constexpr (sizeof...(Is) != 0) fill_tuple < J + 1 > (std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
 		template<std::size_t I = 0, typename U, typename... Us>
-		SEK_FORCEINLINE void fill_impl(U &&x, Us &&...args) noexcept
+		SEK_FORCEINLINE void fill_vals(U &&x, Us &&...args) noexcept
 		{
 			if constexpr (I < N)
 			{
@@ -445,12 +503,42 @@ namespace sek
 					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<U>>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
-				if constexpr (sizeof...(Us) != 0) fill_impl < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
+				if constexpr (sizeof...(Us) != 0) fill_vals < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
 			}
 		}
 
 		simd_type m_data = {};
 	};
+
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::up() noexcept requires (std::is_signed_v<T> && N == 2) { return basic_vec<T, N, A>{0, 1}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::down() noexcept requires (std::is_signed_v<T> && N == 2) { return basic_vec<T, N, A>{0, -1}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::left() noexcept requires (std::is_signed_v<T> && N == 2) { return basic_vec<T, N, A>{-1, 0}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::right() noexcept requires (std::is_signed_v<T> && N == 2) { return basic_vec<T, N, A>{1, 0}; }
+
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::up() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{0, 1, 0}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::down() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{0, -1, 0}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::left() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{-1, 0, 0}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::right() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{1, 0, 0}; }
+
+#ifndef SEK_FORCE_LEFT_HANDED
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::forward() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{0, 0, -1}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::backward() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{0, 0, 1}; }
+#else
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::forward() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{0, 0, 1}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::backward() noexcept requires (std::is_signed_v<T> && N == 3) { return basic_vec<T, N, A>{0, 0, -1}; }
+#endif
 
 	/** Returns reference to the underlying `dpm::simd` object of the vector. */
 	template<typename T, std::size_t N, typename Abi>
