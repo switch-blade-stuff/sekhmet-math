@@ -11,9 +11,12 @@ target_sources(${SEK_MATH_PROJECT} INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/power.hpp
         ${CMAKE_CURRENT_LIST_DIR}/expon.hpp
         ${CMAKE_CURRENT_LIST_DIR}/trig.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/geom.hpp
         ${CMAKE_CURRENT_LIST_DIR}/hypbl.hpp
         ${CMAKE_CURRENT_LIST_DIR}/errfn.hpp
         ${CMAKE_CURRENT_LIST_DIR}/neari.hpp
         ${CMAKE_CURRENT_LIST_DIR}/fmanip.hpp
         ${CMAKE_CURRENT_LIST_DIR}/fclass.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/geom.hpp)
+        ${CMAKE_CURRENT_LIST_DIR}/fcmp_vec.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/fcmp_mat.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/trans.hpp)

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "detail/type_vec.hpp"
+#include "detail/fcmp_vec.hpp"
 #include "detail/blend.hpp"
 #include "detail/mbase.hpp"
 #include "detail/power.hpp"

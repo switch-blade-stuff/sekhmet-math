@@ -32,6 +32,10 @@ namespace sek
 		using value_type = typename col_type::value_type;
 		using row_type = basic_vec<T, NCols, abi::deduce_t<T, NCols, Abi>>;
 
+		/** Returns identity matrix. Equivalent to `basic_mat{1}`.
+		 * @note This function is defined only for matrices where `cols() == rows()`. */
+		[[nodiscard]] static basic_mat identity() noexcept requires(NCols == NRows);
+
 	private:
 		static inline void assert_cols(std::size_t i) { if (i >= NCols) [[unlikely]] throw std::range_error("Column index out of range"); }
 		static inline void assert_rows(std::size_t i) { if (i >= NRows) [[unlikely]] throw std::range_error("Row index out of range"); }
@@ -42,10 +46,10 @@ namespace sek
 
 		/** Initializes the matrix where elements along the main diagonal are set to `static_cast<value_type>(x)`, and the rest are zero. */
 		template<typename U>
-		SEK_FORCEINLINE basic_mat(U &&x) noexcept requires std::is_convertible_v<U, value_type> { fill_diag(std::forward<U>(x)); }
+		basic_mat(U &&x) noexcept requires std::is_convertible_v<U, value_type> { fill_diag(std::forward<U>(x)); }
 		/** Initializes columns of the matrix from \a args tuples. Remaining columns are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
 		template<detail::has_tuple_size... Args>
-		SEK_FORCEINLINE basic_mat(Args &&...args) noexcept requires (sizeof...(Args) <= NCols && ((std::tuple_size_v<std::remove_cvref_t<Args>> <= NRows) && ...)) { fill_cols(std::forward<Args>(args)...); }
+		basic_mat(Args &&...args) noexcept requires (sizeof...(Args) <= NCols && ((std::tuple_size_v<std::remove_cvref_t<Args>> <= NRows) && ...)) { fill_cols(std::forward<Args>(args)...); }
 
 		/** Returns the number of columns in the matrix. */
 		[[nodiscard]] constexpr std::size_t cols() const noexcept { return NCols; }
@@ -139,7 +143,7 @@ namespace sek
 
 	private:
 		template<std::size_t I = 0, typename U>
-		DPM_FORCEINLINE void fill_diag(U &&value) noexcept
+		inline void fill_diag(U &&value) noexcept
 		{
 			if constexpr (I < NCols && I < NRows)
 			{
@@ -148,7 +152,7 @@ namespace sek
 			}
 		}
 		template<std::size_t I = 0, std::size_t J = 0, typename U, typename... Args>
-		DPM_FORCEINLINE void fill_cols(U &&value, Args &&...args) noexcept
+		inline void fill_cols(U &&value, Args &&...args) noexcept
 		{
 			if constexpr (J < NRows)
 			{
@@ -169,6 +173,9 @@ namespace sek
 
 		col_type m_data[NCols] = {};
 	};
+
+	template<typename T, std::size_t C, std::size_t R, typename A>
+	basic_mat<T, C, R, A> basic_mat<T, C, R, A>::identity() noexcept requires (C == R) { return basic_mat{1}; }
 
 	/** Gets the `I`th column of the matrix. */
 	template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
@@ -280,9 +287,9 @@ namespace sek
 
 #pragma region "basic_mat operators"
 	template<typename T, std::size_t CR, std::size_t NR, typename AM, typename AV>
-	[[nodiscard]] inline basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
+	[[nodiscard]] inline basic_vec<T, NR, abi::deduce_t<T, NR, AM>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
 	{
-		basic_vec<T, NR, abi::deduce_t<T, NR, AM, AV>> result = a[0] * b[0];
+		basic_vec<T, NR, abi::deduce_t<T, NR, AM>> result = a[0] * b[0];
 		for (std::size_t i = 1; i < CR; ++i) result = fmadd(a[i], {b[i]}, result);
 		return result;
 	}
@@ -301,7 +308,7 @@ namespace sek
 	}
 
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE bool operator==(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
+	[[nodiscard]] bool operator==(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
 	{
 		auto cmp = a[0] == b[0];
 		for (std::size_t i = 1; i < NCols; ++i)
@@ -309,12 +316,12 @@ namespace sek
 		return all_of(cmp);
 	}
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE bool operator!=(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
+	[[nodiscard]] bool operator!=(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
 	{
-		auto cmp = a[0] == b[0];
+		auto cmp = a[0] != b[0];
 		for (std::size_t i = 1; i < NCols; ++i)
-			cmp |= a[i] == b[i];
-		return none_of(cmp);
+			cmp &= a[i] != b[i];
+		return all_of(cmp);
 	}
 #pragma endregion
 }

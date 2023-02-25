@@ -63,7 +63,7 @@ namespace sek
 
 		/** Initializes elements of the vector mask to `static_cast<value_type>(x)`. */
 		template<typename U>
-		SEK_FORCEINLINE basic_vec_mask(U &&x) noexcept requires std::is_convertible_v<U, value_type> : m_data(std::forward<U>(x)) {}
+		basic_vec_mask(U &&x) noexcept requires std::is_convertible_v<U, value_type> : m_data(std::forward<U>(x)) {}
 		/** @brief Initializes vector mask from \a vals.
 		 *
 		 * Given argument `arg` from \a args of type `U`, if `U` is a tuple-like type, initializes `std::tuple_size_v<std::remove_cvref_t<U>>`
@@ -122,7 +122,7 @@ namespace sek
 		[[nodiscard]] constexpr std::size_t size() const noexcept { return N; }
 
 		/** Returns `true` if all elements of the vector mask evaluate to `true`. */
-		[[nodiscard]] SEK_FORCEINLINE operator bool() const noexcept;
+		[[nodiscard]] inline operator bool() const noexcept;
 
 		/** Returns reference to the `i`th element of the vector mask.
 		 * @param i Index of the requested element.
@@ -143,10 +143,10 @@ namespace sek
 
 		/** Returns reference to the `i`th element of the vector mask.
 		 * @param i Index of the requested element. */
-		[[nodiscard]] SEK_FORCEINLINE auto &operator[](std::size_t i) noexcept { return m_data[i]; }
+		[[nodiscard]] auto &operator[](std::size_t i) noexcept { return m_data[i]; }
 		/** Returns copy of the `i`th element of the vector mask.
 		 * @param i Index of the requested element. */
-		[[nodiscard]] SEK_FORCEINLINE value_type operator[](std::size_t i) const noexcept { return m_data[i]; }
+		[[nodiscard]] value_type operator[](std::size_t i) const noexcept { return m_data[i]; }
 
 		SEK_MAKE_VEC_GETTERS(basic_vec_mask, value_type, x, y, z, w)
 		SEK_MAKE_VEC_GETTERS(basic_vec_mask, value_type, r, g, b, a)
@@ -248,44 +248,44 @@ namespace sek
 
 #pragma region "basic_vec_mask operators"
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator!(const basic_vec_mask<T, N, Abi> &x) noexcept { return {!to_simd(x)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator!(const basic_vec_mask<T, N, Abi> &x) noexcept { return {!to_simd(x)}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator&(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) & to_simd(b)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator&(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) & to_simd(b)}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator|(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) | to_simd(b)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator|(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) | to_simd(b)}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator^(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) ^ to_simd(b)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator^(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) ^ to_simd(b)}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec_mask<T, N, Abi> &operator&=(basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
+	inline basic_vec_mask<T, N, Abi> &operator&=(basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
 	{
 		to_simd(a) &= to_simd(b);
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec_mask<T, N, Abi> &operator|=(basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
+	inline basic_vec_mask<T, N, Abi> &operator|=(basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
 	{
 		to_simd(a) |= to_simd(b);
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec_mask<T, N, Abi> &operator^=(basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
+	inline basic_vec_mask<T, N, Abi> &operator^=(basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
 	{
 		to_simd(a) ^= to_simd(b);
 		return a;
 	}
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator&&(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) && to_simd(b)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator&&(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) && to_simd(b)}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator||(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) || to_simd(b)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator||(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept { return {to_simd(a) || to_simd(b)}; }
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator==(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator==(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) == to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator!=(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator!=(const basic_vec_mask<T, N, Abi> &a, const basic_vec_mask<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) != to_simd(b)};
 	}
@@ -294,26 +294,26 @@ namespace sek
 #pragma region "basic_vec_mask reductions"
 	/** Returns `true` if all of the elements of the vector mask are `true`. Otherwise returns `false`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE bool all_of(const basic_vec_mask<T, N, A> &x) noexcept { return all_of(to_simd(x)); }
+	[[nodiscard]] inline bool all_of(const basic_vec_mask<T, N, A> &x) noexcept { return all_of(to_simd(x)); }
 	/** Returns `true` if at least one of the elements of the vector mask are `true`. Otherwise returns `false`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE bool any_of(const basic_vec_mask<T, N, A> &x) noexcept { return any_of(to_simd(x)); }
+	[[nodiscard]] inline bool any_of(const basic_vec_mask<T, N, A> &x) noexcept { return any_of(to_simd(x)); }
 	/** Returns `true` if at none of the elements of the vector mask is `true`. Otherwise returns `false`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE bool none_of(const basic_vec_mask<T, N, A> &x) noexcept { return none_of(to_simd(x)); }
+	[[nodiscard]] inline bool none_of(const basic_vec_mask<T, N, A> &x) noexcept { return none_of(to_simd(x)); }
 	/** Returns `true` if at least one of the elements of the vector mask is `true` and at least one is `false`. Otherwise returns `false`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE bool some_of(const basic_vec_mask<T, N, A> &x) noexcept { return some_of(to_simd(x)); }
+	[[nodiscard]] inline bool some_of(const basic_vec_mask<T, N, A> &x) noexcept { return some_of(to_simd(x)); }
 
 	/** Returns the number of `true` elements of the vector mask. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE std::size_t popcount(const basic_vec_mask<T, N, A> &x) noexcept { return popcount(to_simd(x)); }
+	[[nodiscard]] inline std::size_t popcount(const basic_vec_mask<T, N, A> &x) noexcept { return popcount(to_simd(x)); }
 	/** Returns the index of the first `true` element of the vector mask. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE std::size_t find_first_set(const basic_vec_mask<T, N, A> &x) noexcept { return find_first_set(to_simd(x)); }
+	[[nodiscard]] inline std::size_t find_first_set(const basic_vec_mask<T, N, A> &x) noexcept { return find_first_set(to_simd(x)); }
 	/** Returns the index of the last `true` element of the vector mask. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE std::size_t find_last_set(const basic_vec_mask<T, N, A> &x) noexcept { return find_last_set(to_simd(x)); }
+	[[nodiscard]] inline std::size_t find_last_set(const basic_vec_mask<T, N, A> &x) noexcept { return find_last_set(to_simd(x)); }
 #pragma endregion
 
 	template<typename T, std::size_t N, typename A>
@@ -343,7 +343,7 @@ namespace sek
 
 		/** Initializes elements of the vector to `static_cast<value_type>(x)`. */
 		template<typename U>
-		SEK_FORCEINLINE basic_vec(U &&x) noexcept requires std::is_convertible_v<U, value_type> : m_data(std::forward<U>(x)) {}
+		basic_vec(U &&x) noexcept requires std::is_convertible_v<U, value_type> : m_data(std::forward<U>(x)) {}
 		/** @brief Initializes vector from \a vals.
 		 *
 		 * Given argument `arg` from \a args of type `U`, if `U` is a tuple-like type, initializes `std::tuple_size_v<std::remove_cvref_t<U>>`
@@ -382,9 +382,9 @@ namespace sek
 		basic_vec(const R &data) requires std::is_convertible_v<std::ranges::range_value_t<R>, value_type> : basic_vec(std::ranges::begin(data), std::ranges::end(data)) {}
 
 		template<typename U, typename OtherAbi>
-		SEK_FORCEINLINE basic_vec(const dpm::simd<U, OtherAbi> &data) noexcept : m_data(data) {}
+		basic_vec(const dpm::simd<U, OtherAbi> &data) noexcept : m_data(data) {}
 		template<typename U, typename OtherAbi>
-		SEK_FORCEINLINE basic_vec(const basic_vec<U, N, OtherAbi> &other) noexcept : basic_vec(to_simd(other)) {}
+		basic_vec(const basic_vec<U, N, OtherAbi> &other) noexcept : basic_vec(to_simd(other)) {}
 
 		/** @brief Fills vector from \a args.
 		 *
@@ -420,10 +420,10 @@ namespace sek
 
 		/** Returns reference to the `i`th element of the vector.
 		 * @param i Index of the requested element. */
-		[[nodiscard]] SEK_FORCEINLINE auto &operator[](std::size_t i) noexcept { return m_data[i]; }
+		[[nodiscard]] auto &operator[](std::size_t i) noexcept { return m_data[i]; }
 		/** Returns copy of the `i`th element of the vector.
 		 * @param i Index of the requested element. */
-		[[nodiscard]] SEK_FORCEINLINE value_type operator[](std::size_t i) const noexcept { return m_data[i]; }
+		[[nodiscard]] value_type operator[](std::size_t i) const noexcept { return m_data[i]; }
 
 		SEK_MAKE_VEC_GETTERS(basic_vec, value_type, x, y, z, w)
 		SEK_MAKE_VEC_GETTERS(basic_vec, value_type, r, g, b, a)
@@ -525,139 +525,139 @@ namespace sek
 
 #pragma region "basic_vec operators"
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &x) noexcept requires (requires { +to_simd(x); }) { return {+to_simd(x)}; }
+	inline basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &x) noexcept requires (requires { +to_simd(x); }) { return {+to_simd(x)}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &x) noexcept requires (requires { -to_simd(x); }) { return {-to_simd(x)}; }
+	inline basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &x) noexcept requires (requires { -to_simd(x); }) { return {-to_simd(x)}; }
 
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> operator++(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)++; }) { return {to_simd(x)++}; }
+	inline basic_vec<T, N, Abi> operator++(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)++; }) { return {to_simd(x)++}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> operator--(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)--; }) { return {to_simd(x)--}; }
+	inline basic_vec<T, N, Abi> operator--(basic_vec<T, N, Abi> &x, int) noexcept requires (requires { to_simd(x)--; }) { return {to_simd(x)--}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator++(basic_vec<T, N, Abi> &x) noexcept requires (requires { ++to_simd(x); }) { return ++to_simd(x); }
+	inline basic_vec<T, N, Abi> &operator++(basic_vec<T, N, Abi> &x) noexcept requires (requires { ++to_simd(x); }) { return ++to_simd(x); }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator--(basic_vec<T, N, Abi> &x) noexcept requires (requires { --to_simd(x); }) { return --to_simd(x); }
+	inline basic_vec<T, N, Abi> &operator--(basic_vec<T, N, Abi> &x) noexcept requires (requires { --to_simd(x); }) { return --to_simd(x); }
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) + to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) + to_simd(b); })
 	{
 		return {to_simd(a) + to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) - to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) - to_simd(b); })
 	{
 		return {to_simd(a) - to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator+=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) += to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator+=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) += to_simd(b); })
 	{
 		to_simd(a) += to_simd(b);
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator-=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) -= to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator-=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) -= to_simd(b); })
 	{
 		to_simd(a) -= to_simd(b);
 		return a;
 	}
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a + basic_vec<T, N, Abi>{b}; }) { return a + basic_vec<T, N, Abi>{b}; }
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator+(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a + basic_vec<T, N, Abi>{b}; }) { return a + basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a - basic_vec<T, N, Abi>{b}; }) { return a - basic_vec<T, N, Abi>{b}; }
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator-(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a - basic_vec<T, N, Abi>{b}; }) { return a - basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator+=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a += basic_vec<T, N, Abi>{b}; }) { return a += basic_vec<T, N, Abi>{b}; }
+	inline basic_vec<T, N, Abi> &operator+=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a += basic_vec<T, N, Abi>{b}; }) { return a += basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator-=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a -= basic_vec<T, N, Abi>{b}; }) { return a -= basic_vec<T, N, Abi>{b}; }
+	inline basic_vec<T, N, Abi> &operator-=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a -= basic_vec<T, N, Abi>{b}; }) { return a -= basic_vec<T, N, Abi>{b}; }
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator*(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) * to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator*(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) * to_simd(b); })
 	{
 		return {to_simd(a) * to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator/(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) / to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator/(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) / to_simd(b); })
 	{
 		return {to_simd(a) / to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator%(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) % to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator%(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) % to_simd(b); })
 	{
 		return {to_simd(a) % to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator*=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) *= to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator*=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) *= to_simd(b); })
 	{
 		to_simd(a) *= to_simd(b);
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator/=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) /= to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator/=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) /= to_simd(b); })
 	{
 		to_simd(a) /= to_simd(b);
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator%=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) %= to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator%=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) %= to_simd(b); })
 	{
 		to_simd(a) %= to_simd(b);
 		return a;
 	}
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator*(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a * basic_vec<T, N, Abi>{b}; }) { return a * basic_vec<T, N, Abi>{b}; }
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator*(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a * basic_vec<T, N, Abi>{b}; }) { return a * basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator/(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a / basic_vec<T, N, Abi>{b}; }) { return a / basic_vec<T, N, Abi>{b}; }
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator/(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a / basic_vec<T, N, Abi>{b}; }) { return a / basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator%(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a % basic_vec<T, N, Abi>{b}; }) { return a % basic_vec<T, N, Abi>{b}; }
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator%(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a % basic_vec<T, N, Abi>{b}; }) { return a % basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator*=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a *= basic_vec<T, N, Abi>{b}; }) { return a *= basic_vec<T, N, Abi>{b}; }
+	inline basic_vec<T, N, Abi> &operator*=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a *= basic_vec<T, N, Abi>{b}; }) { return a *= basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator/=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a /= basic_vec<T, N, Abi>{b}; }) { return a /= basic_vec<T, N, Abi>{b}; }
+	inline basic_vec<T, N, Abi> &operator/=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a /= basic_vec<T, N, Abi>{b}; }) { return a /= basic_vec<T, N, Abi>{b}; }
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator%=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a %= basic_vec<T, N, Abi>{b}; }) { return a %= basic_vec<T, N, Abi>{b}; }
+	inline basic_vec<T, N, Abi> &operator%=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { a %= basic_vec<T, N, Abi>{b}; }) { return a %= basic_vec<T, N, Abi>{b}; }
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator>>(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) >> to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator>>(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) >> to_simd(b); })
 	{
 		return {to_simd(a) >> to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator<<(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) << to_simd(b); })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator<<(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) << to_simd(b); })
 	{
 		return {to_simd(a) << to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator>>=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) >>= to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator>>=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) >>= to_simd(b); })
 	{
 		to_simd(a) >>= to_simd(b);
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator<<=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) <<= to_simd(b); })
+	inline basic_vec<T, N, Abi> &operator<<=(basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept requires (requires { to_simd(a) <<= to_simd(b); })
 	{
 		to_simd(a) <<= to_simd(b);
 		return a;
 	}
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator>>(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) >> b; })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator>>(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) >> b; })
 	{
 		return {to_simd(a) >> b};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, Abi> operator<<(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) << b; })
+	[[nodiscard]] inline basic_vec<T, N, Abi> operator<<(const basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) << b; })
 	{
 		return {to_simd(a) << b};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator>>=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) >>= b; })
+	inline basic_vec<T, N, Abi> &operator>>=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) >>= b; })
 	{
 		to_simd(a) >>= b;
 		return a;
 	}
 	template<typename T, std::size_t N, typename Abi>
-	SEK_FORCEINLINE basic_vec<T, N, Abi> &operator<<=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) <<= b; })
+	inline basic_vec<T, N, Abi> &operator<<=(basic_vec<T, N, Abi> &a, T b) noexcept requires (requires { to_simd(a) <<= b; })
 	{
 		to_simd(a) <<= b;
 		return a;
@@ -665,47 +665,47 @@ namespace sek
 
 	/** Logically shifts elements of vector \a x left by a constant number of bits `N`. */
 	template<std::size_t N, std::integral T, std::size_t M, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, M, A> lsl(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::lsl<N>(to_simd(x))}; }
+	[[nodiscard]] inline basic_vec<T, M, A> lsl(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::lsl<N>(to_simd(x))}; }
 	/** Logically shifts elements of vector \a x right by a constant number of bits `N`. */
 	template<std::size_t N, std::integral T, std::size_t M, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, M, A> lsr(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::lsr<N>(to_simd(x))}; }
+	[[nodiscard]] inline basic_vec<T, M, A> lsr(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::lsr<N>(to_simd(x))}; }
 	/** Arithmetically shifts elements of vector \a x left by a constant number of bits `N`. */
 	template<std::size_t N, std::integral T, std::size_t M, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, M, A> asl(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::asl<N>(to_simd(x))}; }
+	[[nodiscard]] inline basic_vec<T, M, A> asl(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::asl<N>(to_simd(x))}; }
 	/** Arithmetically shifts elements of vector \a x right by a constant number of bits `N`. */
 	template<std::size_t N, std::integral T, std::size_t M, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, M, A> asr(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::asr<N>(to_simd(x))}; }
+	[[nodiscard]] inline basic_vec<T, M, A> asr(const basic_vec<T, M, A> &x) noexcept requires (N < std::numeric_limits<T>::digits) { return {dpm::asr<N>(to_simd(x))}; }
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator!(const basic_vec<T, N, Abi> &x) noexcept { return {!to_simd(x)}; }
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator!(const basic_vec<T, N, Abi> &x) noexcept { return {!to_simd(x)}; }
 
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator==(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator==(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) == to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator!=(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator!=(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) != to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator<=(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator<=(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) <= to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator>=(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator>=(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) >= to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator<(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator<(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) < to_simd(b)};
 	}
 	template<typename T, std::size_t N, typename Abi>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec_mask<T, N, Abi> operator>(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
+	[[nodiscard]] inline basic_vec_mask<T, N, Abi> operator>(const basic_vec<T, N, Abi> &a, const basic_vec<T, N, Abi> &b) noexcept
 	{
 		return {to_simd(a) > to_simd(b)};
 	}
@@ -714,58 +714,58 @@ namespace sek
 #pragma region "basic_vec reductions"
 	/** Calculates a reduction of all elements from \a x using \a binary_op. */
 	template<typename T, std::size_t N, typename A, typename Op = std::plus<>>
-	[[nodiscard]] SEK_FORCEINLINE T reduce(const basic_vec<T, N, A> &x, Op binary_op = {}) { return reduce(to_simd(x), std::move(binary_op)); }
+	[[nodiscard]] inline T reduce(const basic_vec<T, N, A> &x, Op binary_op = {}) { return reduce(to_simd(x), std::move(binary_op)); }
 
 	/** Finds the horizontal sum of all elements in \a x. Equivalent to `reduce(x, std::plus<>{})`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hadd(const basic_vec<T, N, A> &x) { return hadd(to_simd(x)); }
+	[[nodiscard]] inline T hadd(const basic_vec<T, N, A> &x) { return hadd(to_simd(x)); }
 	/** Finds the horizontal product of all elements in \a x. Equivalent to `reduce(x, std::multiplies<>{})`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hmul(const basic_vec<T, N, A> &x) { return hmul(to_simd(x)); }
+	[[nodiscard]] inline T hmul(const basic_vec<T, N, A> &x) { return hmul(to_simd(x)); }
 
 	/** Finds the horizontal bitwise AND of all elements in \a x. Equivalent to `reduce(x, std::bit_and<>{})`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hand(const basic_vec<T, N, A> &x) { return hand(to_simd(x)); }
+	[[nodiscard]] inline T hand(const basic_vec<T, N, A> &x) { return hand(to_simd(x)); }
 	/** Finds the horizontal bitwise XOR of all elements in \a x. Equivalent to `reduce(x, std::bit_xor<>{})`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hxor(const basic_vec<T, N, A> &x) { return hxor(to_simd(x)); }
+	[[nodiscard]] inline T hxor(const basic_vec<T, N, A> &x) { return hxor(to_simd(x)); }
 	/** Finds the horizontal bitwise OR of all elements in \a x. Equivalent to `reduce(x, std::bit_or<>{})`. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hor(const basic_vec<T, N, A> &x) { return hor(to_simd(x)); }
+	[[nodiscard]] inline T hor(const basic_vec<T, N, A> &x) { return hor(to_simd(x)); }
 
 	/** Finds the horizontal minimum of elements in \a x. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hmin(const basic_vec<T, N, A> &x) { return hmin(to_simd(x)); }
+	[[nodiscard]] inline T hmin(const basic_vec<T, N, A> &x) { return hmin(to_simd(x)); }
 	/** Finds the horizontal maximum of elements in \a x. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE T hmax(const basic_vec<T, N, A> &x) { return hmax(to_simd(x)); }
+	[[nodiscard]] inline T hmax(const basic_vec<T, N, A> &x) { return hmax(to_simd(x)); }
 #pragma endregion
 
 #pragma region "basic_vec algorithms"
 	/** Returns a vector of minimum elements of \a a and \a b. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, A> min(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return {dpm::min(to_simd(a), to_simd(b))}; }
+	[[nodiscard]] inline basic_vec<T, N, A> min(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return {dpm::min(to_simd(a), to_simd(b))}; }
 	/** Returns a vector of maximum elements of \a a and \a b. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, A> max(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return {dpm::max(to_simd(a), to_simd(b))}; }
+	[[nodiscard]] inline basic_vec<T, N, A> max(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return {dpm::max(to_simd(a), to_simd(b))}; }
 
 	/** Returns a vector of minimum elements of \a a and scalar \a b. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, A> min(const basic_vec<T, N, A> &a, T b) noexcept { return {dpm::min(to_simd(a), b)}; }
+	[[nodiscard]] inline basic_vec<T, N, A> min(const basic_vec<T, N, A> &a, T b) noexcept { return {dpm::min(to_simd(a), b)}; }
 	/** Returns a vector of maximum elements of \a a and scalar \a b. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, A> max(const basic_vec<T, N, A> &a, T b) noexcept { return {dpm::max(to_simd(a), b)}; }
+	[[nodiscard]] inline basic_vec<T, N, A> max(const basic_vec<T, N, A> &a, T b) noexcept { return {dpm::max(to_simd(a), b)}; }
 
 	/** Returns a pair of vectors of minimum and maximum elements of \a a and \a b. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE std::pair<basic_vec<T, N, A>, basic_vec<T, N, A>> minmax(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept
+	[[nodiscard]] inline std::pair<basic_vec<T, N, A>, basic_vec<T, N, A>> minmax(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept
 	{
 		const auto [simd_min, simd_max] = dpm::minmax(to_simd(a), to_simd(b));
 		return {simd_min, simd_max};
 	}
 	/** Returns a pair of vectors of minimum and maximum elements of \a a and scalar \a b. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE std::pair<basic_vec<T, N, A>, basic_vec<T, N, A>> minmax(const basic_vec<T, N, A> &a, T b) noexcept
+	[[nodiscard]] inline std::pair<basic_vec<T, N, A>, basic_vec<T, N, A>> minmax(const basic_vec<T, N, A> &a, T b) noexcept
 	{
 		const auto [simd_min, simd_max] = dpm::minmax(to_simd(a), b);
 		return {simd_min, simd_max};
@@ -773,13 +773,13 @@ namespace sek
 
 	/** Clamps elements of \a x between corresponding elements of \a min and \a max. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, A> clamp(const basic_vec<T, N, A> &x, const basic_vec<T, N, A> &min, const basic_vec<T, N, A> &max) noexcept
+	[[nodiscard]] inline basic_vec<T, N, A> clamp(const basic_vec<T, N, A> &x, const basic_vec<T, N, A> &min, const basic_vec<T, N, A> &max) noexcept
 	{
 		return {dpm::clamp(to_simd(x), to_simd(min), to_simd(max))};
 	}
 	/** Clamps elements of \a x between \a min and \a max. */
 	template<typename T, std::size_t N, typename A>
-	[[nodiscard]] SEK_FORCEINLINE basic_vec<T, N, A> clamp(const basic_vec<T, N, A> &x, T min, T max) noexcept
+	[[nodiscard]] inline basic_vec<T, N, A> clamp(const basic_vec<T, N, A> &x, T min, T max) noexcept
 	{
 		return {dpm::clamp(to_simd(x), to_simd(min), to_simd(max))};
 	}

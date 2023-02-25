@@ -5,3 +5,5 @@
 #pragma once
 
 #include "detail/type_mat.hpp"
+#include "detail/fcmp_mat.hpp"
+#include "detail/trans.hpp"
