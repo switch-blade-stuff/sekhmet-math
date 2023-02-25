@@ -169,34 +169,34 @@ namespace sek
 	/** @copydoc fmadd
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted fmadd(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
+	[[nodiscard]] inline Promoted fmadd(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
 	{
 		return {dpm::fmadd(to_simd(a), to_simd(b), to_simd(c))};
 	}
 	/** @copydoc fmsub
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted fmsub(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
+	[[nodiscard]] inline Promoted fmsub(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
 	{
 		return {dpm::fmadd(to_simd(a), to_simd(b), to_simd(c))};
 	}
 	/** @copydoc fnmadd
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted fnmadd(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
+	[[nodiscard]] inline Promoted fnmadd(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
 	{
 		return {dpm::fmadd(to_simd(a), to_simd(b), to_simd(c))};
 	}
 	/** @copydoc fnmsub
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted fnmsub(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
+	[[nodiscard]] inline Promoted fnmsub(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
 	{
 		return {dpm::fmadd(to_simd(a), to_simd(b), to_simd(c))};
 	}
 	/** @copydoc fmadd */
 	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted fma(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
+	[[nodiscard]] inline Promoted fma(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b, const basic_vec<T2, N, A> &c) noexcept
 	{
 		return {dpm::fma(to_simd(a), to_simd(b), to_simd(c))};
 	}

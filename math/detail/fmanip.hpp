@@ -94,17 +94,17 @@ namespace sek
 	/** @copydoc ldexp
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted ldexp(const basic_vec<T, N, A> &x, int exp) noexcept { return {dpm::ldexp(to_simd(x), exp)}; }
+	[[nodiscard]] inline Promoted ldexp(const basic_vec<T, N, A> &x, int exp) noexcept { return {dpm::ldexp(to_simd(x), exp)}; }
 	/** @copydoc scalbn
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted scalbn(const basic_vec<T, N, A> &x, int exp) noexcept { return {dpm::scalbn(to_simd(x), exp)}; }
+	[[nodiscard]] inline Promoted scalbn(const basic_vec<T, N, A> &x, int exp) noexcept { return {dpm::scalbn(to_simd(x), exp)}; }
 	/** @copydoc scalbln
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted scalbln(const basic_vec<T, N, A> &x, long exp) noexcept { return {dpm::scalbln(to_simd(x), exp)}; }
+	[[nodiscard]] inline Promoted scalbln(const basic_vec<T, N, A> &x, long exp) noexcept { return {dpm::scalbln(to_simd(x), exp)}; }
 	/** @copydoc copysign
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] DPM_FORCEINLINE Promoted copysign(const basic_vec<T0, N, A> &x, T1 sign) noexcept { return {dpm::copysign(to_simd(x), sign)}; }
+	[[nodiscard]] inline Promoted copysign(const basic_vec<T0, N, A> &x, T1 sign) noexcept { return {dpm::copysign(to_simd(x), sign)}; }
 }

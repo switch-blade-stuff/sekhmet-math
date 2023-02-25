@@ -5,15 +5,6 @@
 #include <math/vector.hpp>
 #include <math/matrix.hpp>
 
-auto test(sek::vec4<float> a, sek::vec4<float> b)
-{
-	return sek::fcmp_eq(a, b);
-}
-auto test(sek::mat4x4<float> a, sek::mat4x4<float> b)
-{
-	return sek::fcmp_eq(a, b);
-}
-
 int main()
 {
 	/* | 1 | 2 | 4 |
