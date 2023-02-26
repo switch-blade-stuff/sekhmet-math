@@ -19,7 +19,7 @@
 
 namespace sek
 {
-	namespace abi { using namespace dpm::simd_abi; }
+	namespace math_abi { using namespace dpm::simd_abi; }
 	using dpm::is_abi_tag;
 	using dpm::is_abi_tag_v;
 

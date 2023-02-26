@@ -9,31 +9,31 @@
 namespace sek
 {
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
-	[[nodiscard]] inline basic_vec<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(const basic_vec<T, N, Abi> &x) noexcept;
+	[[nodiscard]] inline basic_vec<T, sizeof...(Is), math_abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(const basic_vec<T, N, Abi> &x) noexcept;
 	template<std::size_t... Is, typename T, std::size_t N, typename Abi>
-	[[nodiscard]] inline basic_vec_mask<T, sizeof...(Is), abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(const basic_vec_mask<T, N, Abi> &x) noexcept;
+	[[nodiscard]] inline basic_vec_mask<T, sizeof...(Is), math_abi::deduce_t<T, sizeof...(Is), Abi>> shuffle(const basic_vec_mask<T, N, Abi> &x) noexcept;
 }
 
 /* Vector API exposes convenience element shuffles (xxx, xxy, xxz, etc.). These macros are used to generate all possible
  * permutations of element shuffle functions for 2-, 3-, end 4-element vectors. Ugly but beats writing them manually. */
 
-#define SEK_MAKE_VEC_GETTERS2(type, M, x, y, ix, iy)                                                    \
-    template<typename NewAbi = Abi>                                                                     \
-    [[nodiscard]] type<T, 2, abi::deduce_t<T, 2, NewAbi>> x##y() const noexcept requires (N >= M)       \
-    {                                                                                                   \
-        return {shuffle<ix, iy>(*this)};                                                                \
+#define SEK_MAKE_VEC_GETTERS2(type, M, x, y, ix, iy)                                                            \
+    template<typename NewAbi = Abi>                                                                             \
+    [[nodiscard]] type<T, 2, math_abi::deduce_t<T, 2, NewAbi>> x##y() const noexcept requires (N >= M)          \
+    {                                                                                                           \
+        return {shuffle<ix, iy>(*this)};                                                                        \
     }
-#define SEK_MAKE_VEC_GETTERS3(type, M, x, y, z, ix, iy, iz)                                             \
-    template<typename NewAbi = Abi>                                                                     \
-    [[nodiscard]] type<T, 3, abi::deduce_t<T, 3, NewAbi>> x##y##z() const noexcept requires (N >= M)    \
-    {                                                                                                   \
-        return {shuffle<ix, iy, iz>(*this)};                                                            \
+#define SEK_MAKE_VEC_GETTERS3(type, M, x, y, z, ix, iy, iz)                                                     \
+    template<typename NewAbi = Abi>                                                                             \
+    [[nodiscard]] type<T, 3, math_abi::deduce_t<T, 3, NewAbi>> x##y##z() const noexcept requires (N >= M)       \
+    {                                                                                                           \
+        return {shuffle<ix, iy, iz>(*this)};                                                                    \
     }
-#define SEK_MAKE_VEC_GETTERS4(type, M, x, y, z, w, ix, iy, iz, iw)                                      \
-    template<typename NewAbi = Abi>                                                                     \
-    [[nodiscard]] type<T, 4, abi::deduce_t<T, 4, NewAbi>> x##y##z##w() const noexcept requires (N >= M) \
-    {                                                                                                   \
-        return {shuffle<ix, iy, iz, iw>(*this)};                                                        \
+#define SEK_MAKE_VEC_GETTERS4(type, M, x, y, z, w, ix, iy, iz, iw)                                              \
+    template<typename NewAbi = Abi>                                                                             \
+    [[nodiscard]] type<T, 4, math_abi::deduce_t<T, 4, NewAbi>> x##y##z##w() const noexcept requires (N >= M)    \
+    {                                                                                                           \
+        return {shuffle<ix, iy, iz, iw>(*this)};                                                                \
     }
 
 #define SEK_MAKE_VEC_GETTERS(type, U, x, y, z, w)                                                   \

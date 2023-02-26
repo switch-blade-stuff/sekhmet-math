@@ -43,7 +43,7 @@ namespace sek
 	template<typename T, typename A>
 	[[nodiscard]] inline basic_mat<T, 4, 4, A> inverse(const basic_mat<T, 4, 4, A> &x) noexcept
 	{
-		using vec2_t = basic_vec<T, 2, abi::deduce_t<T, 2, A>>;
+		using vec2_t = basic_vec<T, 2, math_abi::deduce_t<T, 2, A>>;
 
 		const auto c1r0 = vec2_t{x[1][0]};
 		const auto c1r1 = vec2_t{x[1][1]};

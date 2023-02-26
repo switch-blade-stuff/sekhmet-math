@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "math_fwd.hpp"
 #include "type_mat.hpp"
 #include "geom.hpp"
 

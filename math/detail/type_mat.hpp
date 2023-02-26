@@ -42,7 +42,7 @@ namespace sek
 	public:
 		using col_type = basic_vec<T, NRows, Abi>;
 		using value_type = typename col_type::value_type;
-		using row_type = basic_vec<T, NCols, abi::deduce_t<T, NCols, Abi>>;
+		using row_type = basic_vec<T, NCols, math_abi::deduce_t<T, NCols, Abi>>;
 
 		/** Returns identity matrix. Equivalent to `basic_mat{1}`.
 		 * @note This function is defined only for matrices where `cols() == rows()`. */
@@ -250,39 +250,39 @@ namespace sek
 
 #pragma region "basic_mat aliases"
 	/** Alias for matrix that uses implementation-defined ABI deduced from it's size, type and optional ABI hint. */
-	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi = abi::fixed_size<NRows>>
-	using mat = basic_mat<T, NCols, NRows, abi::deduce_t<T, NRows, Abi>>;
+	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi = math_abi::fixed_size<NRows>>
+	using mat = basic_mat<T, NCols, NRows, math_abi::deduce_t<T, NRows, Abi>>;
 	/** Alias for deduced-ABI matrix of 2 columns by 2 rows. */
-	template<typename T, typename Abi = abi::fixed_size<2>>
+	template<typename T, typename Abi = math_abi::fixed_size<2>>
 	using mat2x2 = mat<T, 2, 2, Abi>;
 	/** Alias for deduced-ABI matrix of 2 columns by 3 rows. */
-	template<typename T, typename Abi = abi::fixed_size<3>>
+	template<typename T, typename Abi = math_abi::fixed_size<3>>
 	using mat2x3 = mat<T, 2, 3, Abi>;
 	/** Alias for deduced-ABI matrix of 2 columns by 4 rows. */
-	template<typename T, typename Abi = abi::fixed_size<4>>
+	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using mat2x4 = mat<T, 2, 4, Abi>;
 	/** Alias for deduced-ABI matrix of 3 columns by 2 rows. */
-	template<typename T, typename Abi = abi::fixed_size<2>>
+	template<typename T, typename Abi = math_abi::fixed_size<2>>
 	using mat3x2 = mat<T, 3, 2, Abi>;
 	/** Alias for deduced-ABI matrix of 3 columns by 3 rows. */
-	template<typename T, typename Abi = abi::fixed_size<3>>
+	template<typename T, typename Abi = math_abi::fixed_size<3>>
 	using mat3x3 = mat<T, 3, 3, Abi>;
 	/** Alias for deduced-ABI matrix of 3 columns by 4 rows. */
-	template<typename T, typename Abi = abi::fixed_size<4>>
+	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using mat3x4 = mat<T, 3, 4, Abi>;
 	/** Alias for deduced-ABI matrix of 4 columns by 2 rows. */
-	template<typename T, typename Abi = abi::fixed_size<2>>
+	template<typename T, typename Abi = math_abi::fixed_size<2>>
 	using mat4x2 = mat<T, 4, 2, Abi>;
 	/** Alias for deduced-ABI matrix of 4 columns by 3 rows. */
-	template<typename T, typename Abi = abi::fixed_size<3>>
+	template<typename T, typename Abi = math_abi::fixed_size<3>>
 	using mat4x3 = mat<T, 4, 3, Abi>;
 	/** Alias for deduced-ABI matrix of 4 columns by 4 rows. */
-	template<typename T, typename Abi = abi::fixed_size<4>>
+	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using mat4x4 = mat<T, 4, 4, Abi>;
 
 	/** Alias for matrix that uses compatible (implementation-defined) ABI. */
 	template<typename T, std::size_t NCols, std::size_t NRows>
-	using compat_mat = basic_mat<T, NCols, NRows, abi::deduce_t<T, NRows, abi::compatible<T>>>;
+	using compat_mat = basic_mat<T, NCols, NRows, math_abi::deduce_t<T, NRows, math_abi::compatible < T>>>;
 	/** Alias for compatible-ABI matrix of 2 columns by 2 rows. */
 	template<typename T>
 	using compat_mat2x2 = compat_mat<T, 2, 2>;
@@ -313,7 +313,7 @@ namespace sek
 
 	/** Alias for matrix that uses packed (non-vectorized) ABI. */
 	template<typename T, std::size_t NCols, std::size_t NRows>
-	using packed_mat = basic_mat<T, NCols, NRows, abi::packed_buffer<NRows>>;
+	using packed_mat = basic_mat<T, NCols, NRows, math_abi::packed_buffer<NRows>>;
 	/** Alias for packed-ABI matrix of 2 columns by 2 rows. */
 	template<typename T>
 	using packed_mat2x2 = packed_mat<T, 2, 2>;
@@ -345,16 +345,16 @@ namespace sek
 
 #pragma region "basic_mat operators"
 	template<typename T, std::size_t CR, std::size_t NR, typename AM, typename AV>
-	[[nodiscard]] inline basic_vec<T, NR, abi::deduce_t<T, NR, AM>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
+	[[nodiscard]] inline basic_vec<T, NR, math_abi::deduce_t<T, NR, AM>> operator*(const basic_mat<T, CR, NR, AM> &a, const basic_vec<T, CR, AV> &b) noexcept
 	{
-		basic_vec<T, NR, abi::deduce_t<T, NR, AM>> result = a[0] * b[0];
+		basic_vec<T, NR, math_abi::deduce_t<T, NR, AM>> result = a[0] * b[0];
 		for (std::size_t i = 1; i < CR; ++i) result = fmadd(a[i], {b[i]}, result);
 		return result;
 	}
 	template<typename T, std::size_t CR, std::size_t R0, std::size_t C1, typename A0, typename A1>
-	[[nodiscard]] inline basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> operator*(const basic_mat<T, CR, R0, A0> &a, const basic_mat<T, C1, CR, A1> &b) noexcept
+	[[nodiscard]] inline basic_mat<T, C1, R0, math_abi::deduce_t<T, R0, A0, A1>> operator*(const basic_mat<T, CR, R0, A0> &a, const basic_mat<T, C1, CR, A1> &b) noexcept
 	{
-		basic_mat<T, C1, R0, abi::deduce_t<T, R0, A0, A1>> result;
+		basic_mat<T, C1, R0, math_abi::deduce_t<T, R0, A0, A1>> result;
 		for (std::size_t i = 0; i < C1; ++i)
 		{
 			auto col = a[0] * b[i][0];
@@ -396,9 +396,9 @@ namespace sek
 
 	/** Calculates the transpose matrix of \a x. */
 	template<typename T, std::size_t NRows, std::size_t NCols, typename A>
-	[[nodiscard]] inline basic_mat<T, NRows, NCols, abi::deduce_t<T, NCols, A>> transpose(const basic_mat<T, NCols, NRows, A> &x) noexcept
+	[[nodiscard]] inline mat<T, NRows, NCols, A> transpose(const basic_mat<T, NCols, NRows, A> &x) noexcept
 	{
-		basic_mat<T, NRows, NCols, abi::deduce_t<T, NCols, A>> result;
+		basic_mat<T, NRows, NCols, math_abi::deduce_t<T, NCols, A>> result;
 		for (std::size_t i = 0; i < NRows; ++i) result[i] = x.row(i);
 		return result;
 	}
