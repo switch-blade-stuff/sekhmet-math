@@ -32,6 +32,12 @@ namespace sek
 		}();
 	}
 
+	/** @brief Structure used to define a mathematical matrix.
+	 * @tparam T Value type stored by the matrix.
+	 * @tparam NCols Number of columns of the matrix.
+	 * @tparam NRows Number of rows of the matrix.
+	 * @tparam Abi ABI tag used for the underlying storage of the matrix.
+	 * @note \a NCols and \a NRows must be at least 2 and the \a Abi tag size must match \a NRows. */
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	class basic_mat
 	{
@@ -52,6 +58,7 @@ namespace sek
 	 	 * @param org Origin vector to be rotated.
 	 	 * @param dir Direction vector to rotate the origin towards.
 	 	 * @param up Normalized up vector.
+		 * @return Resulting transform matrix.
 		 * @note This function is defined only for 4x4 matrices. */
 		template<typename A>
 		[[nodiscard]] static SEK_FORCEINLINE basic_mat look_at(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
@@ -66,6 +73,7 @@ namespace sek
 		 * @param org Origin vector to be rotated.
 		 * @param dir Direction vector to rotate the origin towards.
 		 * @param up Normalized up vector.
+		 * @return Resulting transform matrix.
 		 * @note This function is defined only for 4x4 matrices. */
 		template<typename A>
 		[[nodiscard]] static basic_mat look_at_rh(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
@@ -76,6 +84,7 @@ namespace sek
 		 * @param org Origin vector to be rotated.
 		 * @param dir Direction vector to rotate the origin towards.
 		 * @param up Normalized up vector.
+		 * @return Resulting transform matrix.
 		 * @note This function is defined only for 4x4 matrices. */
 		template<typename A>
 		[[nodiscard]] static basic_mat look_at_lh(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
@@ -366,7 +375,7 @@ namespace sek
 	}
 
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] bool operator==(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
+	[[nodiscard]] inline bool operator==(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
 	{
 		auto cmp = a[0] == b[0];
 		for (std::size_t i = 1; i < NCols; ++i)
@@ -374,7 +383,7 @@ namespace sek
 		return all_of(cmp);
 	}
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	[[nodiscard]] bool operator!=(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
+	[[nodiscard]] inline bool operator!=(const basic_mat<T, NCols, NRows, Abi> &a, const basic_mat<T, NCols, NRows, Abi> &b) noexcept
 	{
 		auto cmp = a[0] != b[0];
 		for (std::size_t i = 1; i < NCols; ++i)

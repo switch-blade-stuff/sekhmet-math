@@ -48,8 +48,9 @@ namespace sek
 
 	/** Translates a 4x4 transform matrix \a m using translation vector \a v.
 	 * @param m Transform matrix to translate.
-	 * @param v Translation vector. */
-	template<typename T, typename AM, typename AV>
+	 * @param v Translation vector.
+	 * @return 4x4 transform matrix with translation applied. */
+	template<typename T, typename AM, typename AV = math_abi::deduce_t<T, 3, AM>>
 	[[nodiscard]] inline basic_mat<T, 4, 4, AM> translate(const basic_mat<T, 4, 4, AM> &m, const basic_vec<T, 3, AV> &v) noexcept
 	{
 		basic_mat<T, 4, 4, AM> result;
@@ -62,8 +63,9 @@ namespace sek
 	/** Rotates a 4x4 transform matrix \a m about axis \a v using angle \a a.
 	 * @param m Transform matrix to rotate.
 	 * @param a Rotation angle.
-	 * @param v Rotation axis vector. */
-	template<typename T, typename AM, typename AV>
+	 * @param v Rotation axis vector.
+	 * @return 4x4 transform matrix with rotation applied. */
+	template<typename T, typename AM, typename AV = math_abi::deduce_t<T, 3, AM>>
 	[[nodiscard]] inline basic_mat<T, 4, 4, AM> rotate(const basic_mat<T, 4, 4, AM> &m, T a, const basic_vec<T, 3, AV> &v) noexcept
 	{
 		const auto a_cos = std::cos(a);
@@ -101,8 +103,9 @@ namespace sek
 	}
 	/** Scales a 4x4 transform matrix \a m using scale vector \a v.
 	 * @param m Transform matrix to scale.
-	 * @param v Scale vector. */
-	template<typename T, typename AM, typename AV>
+	 * @param v Scale vector.
+	 * @return 4x4 transform matrix with scale applied. */
+	template<typename T, typename AM, typename AV = math_abi::deduce_t<T, 3, AM>>
 	[[nodiscard]] inline basic_mat<T, 4, 4, AM> scale(const basic_mat<T, 4, 4, AM> &m, const basic_vec<T, 3, AV> &v) noexcept
 	{
 		basic_mat<T, 4, 4, AM> result;
@@ -118,8 +121,9 @@ namespace sek
 	 * @param v Reference point vector.
 	 * @param rx Matrix projection ratio in the YZ plane.
 	 * @param ry Matrix projection ratio in the XZ plane.
-	 * @param rz Matrix projection ratio in the XY plane. */
-	template<typename T, typename AM, typename AP, typename AS>
+	 * @param rz Matrix projection ratio in the XY plane.
+	 * @return 4x4 transform matrix with shear applied. */
+	template<typename T, typename AM, typename AP = math_abi::deduce_t<T, 3, AM>, typename AS = math_abi::deduce_t<T, 2, AP>>
 	[[nodiscard]] inline basic_mat<T, 4, 4, AM> shear(const basic_mat<T, 4, 4, AM> &m, const basic_vec<T, 3, AP> &v, const basic_vec<T, 2, AS> &rx, const basic_vec<T, 2, AS> &ry, const basic_vec<T, 2, AS> &rz) noexcept
 	{
 		const auto lxy = rx[0];

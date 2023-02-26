@@ -39,6 +39,11 @@ namespace sek
 		concept compatible_args = std::conjunction_v<is_compatible_arg<T, std::remove_cvref_t<Ts>>...> && (arg_extent_v<Ts> + ...) == N;
 	}
 
+	/** @brief Structure used to define a boolean mask for a mathematical vector.
+	 * @tparam T Value type of the mask's vector type.
+	 * @tparam N Dimension of the vector mask.
+	 * @tparam Abi ABI tag used for the underlying storage of the vector mask.
+	 * @note \a N must be greater than `1` and the \a Abi tag size must match \a N. */
 	template<typename T, std::size_t N, typename Abi>
 	class basic_vec_mask
 	{
@@ -54,6 +59,7 @@ namespace sek
 		using abi_type = Abi;
 		using simd_type = dpm::simd_mask<T, Abi>;
 		using value_type = typename simd_type::value_type;
+		using vector_type = basic_vec<T, N, Abi>;
 
 	private:
 		static inline void assert_idx(std::size_t i) { if (i >= N) [[unlikely]] throw std::range_error("Element index out of range"); }
@@ -331,6 +337,11 @@ namespace sek
 	template<typename T, std::size_t N, typename A>
 	basic_vec_mask<T, N, A>::operator bool() const noexcept { return all_of(*this); }
 
+	/** @brief Structure used to define a mathematical vector.
+	 * @tparam T Value type stored by the vector.
+	 * @tparam N Dimension of the vector.
+	 * @tparam Abi ABI tag used for the underlying storage of the vector.
+	 * @note \a N must be greater than `1` and the \a Abi tag size must match \a N. */
 	template<typename T, std::size_t N, typename Abi>
 	class basic_vec
 	{
@@ -346,6 +357,7 @@ namespace sek
 		using abi_type = Abi;
 		using simd_type = dpm::simd<T, Abi>;
 		using value_type = typename simd_type::value_type;
+		using mask_type = basic_vec_mask<T, N, Abi>;
 
 		/** Returns an `up` unit vector. Equivalent to `basic_vec{0, 1}`.
 		 * @note This overload is defined only for 2D vectors. */

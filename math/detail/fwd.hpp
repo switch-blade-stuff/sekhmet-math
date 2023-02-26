@@ -20,8 +20,20 @@
 namespace sek
 {
 	namespace math_abi { using namespace dpm::simd_abi; }
-	using dpm::is_abi_tag;
-	using dpm::is_abi_tag_v;
+
+	/** @brief Helper type used to check if `T` is an ABI tag. */
+	template<typename T>
+	using is_abi_tag = dpm::is_abi_tag<T>;
+	/** @brief Alias for `is_abi_tag<T>::value`. */
+	template<typename T>
+	inline constexpr auto is_abi_tag_v = is_abi_tag<T>::value;
+
+	/** @brief Helper type used to obtain vector size of the ABI tag. */
+	template<typename T, typename Abi>
+	using abi_tag_size = dpm::simd_size<T, Abi>;
+	/** @brief Alias for `abi_tag_size<T, Abi>::value`. */
+	template<typename T, typename Abi>
+	inline constexpr auto abi_tag_size_v = abi_tag_size<T, Abi>::value;
 
 	template<typename T, std::size_t N, typename Abi>
 	class basic_vec_mask;
@@ -45,15 +57,15 @@ namespace sek
 
 template<typename T, std::size_t N, typename Abi>
 struct std::tuple_size<sek::basic_vec_mask<T, N, Abi>> : std::integral_constant<std::size_t, N> {};
-template<std::size_t I, typename T, std::size_t N, typename Abi>
+template<std::size_t I, typename T, std::size_t N, typename Abi> requires(I < N)
 struct std::tuple_element<I, sek::basic_vec_mask<T, N, Abi>> { using type = typename sek::basic_vec_mask<T, N, Abi>::value_type; };
 
 template<typename T, std::size_t N, typename Abi>
 struct std::tuple_size<sek::basic_vec<T, N, Abi>> : std::integral_constant<std::size_t, N> {};
-template<std::size_t I, typename T, std::size_t N, typename Abi>
+template<std::size_t I, typename T, std::size_t N, typename Abi> requires(I < N)
 struct std::tuple_element<I, sek::basic_vec<T, N, Abi>> { using type = typename sek::basic_vec<T, N, Abi>::value_type; };
 
 template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 struct std::tuple_size<sek::basic_mat<T, NCols, NRows, Abi>> : std::integral_constant<std::size_t, NCols> {};
-template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi>
+template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi> requires(I < NCols)
 struct std::tuple_element<I, sek::basic_mat<T, NCols, NRows, Abi>> { using type = typename sek::basic_mat<T, NCols, NRows, Abi>::col_type; };
