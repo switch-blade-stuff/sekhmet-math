@@ -10,33 +10,33 @@
 namespace sek
 {
 	template<std::size_t I, typename T, typename Abi>
-	[[nodiscard]] constexpr typename rect<T, Abi>::vector_type &get(rect<T, Abi> &x) noexcept requires (I < 2);
+	[[nodiscard]] constexpr typename basic_rect<T, Abi>::vector_type &get(basic_rect<T, Abi> &x) noexcept requires (I < 2);
 	template<std::size_t I, typename T, typename Abi>
-	[[nodiscard]] constexpr const typename rect<T, Abi>::vector_type &get(const rect<T, Abi> &x) noexcept requires (I < 2);
+	[[nodiscard]] constexpr const typename basic_rect<T, Abi>::vector_type &get(const basic_rect<T, Abi> &x) noexcept requires (I < 2);
 
-	/** @brief Container used to define a rectangle consisting of 2 vectors.
+	/** @brief Structure used to define a screen-space rectangle consisting of 2 vectors.
 	 * @tparam T Value type of the underlying vectors.
 	 * @tparam Abi ABI tag used by the underlying vectors.
 	 * @note The \a Abi tag size must be `2`. */
-	template<typename T, typename Abi = math_abi::fixed_size<2>>
-	class rect
+	template<typename T, typename Abi>
+	class basic_rect
 	{
 		template<std::size_t I, typename U, typename A>
-		friend constexpr typename rect<U, A>::vector_type &get(rect<U, A> &) noexcept requires (I < 2);
+		friend constexpr typename basic_rect<U, A>::vector_type &get(basic_rect<U, A> &) noexcept requires (I < 2);
 		template<std::size_t I, typename U, typename A>
-		friend constexpr const typename rect<U, A>::vector_type &get(const rect<U, A> &) noexcept requires (I < 2);
+		friend constexpr const typename basic_rect<U, A>::vector_type &get(const basic_rect<U, A> &) noexcept requires (I < 2);
 
 	public:
 		using vector_type = basic_vec<T, 2, Abi>;
 		using value_type = typename vector_type::value_type;
 
 	public:
-		constexpr rect() noexcept = default;
+		constexpr basic_rect() noexcept = default;
 
 		/** Initializes a rectangle from minimum (top left) & maximum (bottom right) coordinates. */
-		constexpr rect(vector_type min, vector_type max) noexcept : m_data{min, max} {}
+		constexpr basic_rect(vector_type min, vector_type max) noexcept : m_data{min, max} {}
 		/** Initializes a rectangle origin coordinates, width and height. */
-		rect(vector_type origin, value_type width, value_type height) noexcept
+		basic_rect(vector_type origin, value_type width, value_type height) noexcept
 		{
 			m_data[0] = origin;
 			m_data[1] = origin + vector_type{width, height};
@@ -84,12 +84,12 @@ namespace sek
 	};
 
 	template<typename T, typename Abi>
-	[[nodiscard]] inline bool operator==(const rect<T, Abi> &a, const rect<T, Abi> &b) noexcept
+	[[nodiscard]] inline bool operator==(const basic_rect<T, Abi> &a, const basic_rect<T, Abi> &b) noexcept
 	{
 		return a.min() == a.max() & b.min() == b.max();
 	}
 	template<typename T, typename Abi>
-	[[nodiscard]] inline bool operator!=(const rect<T, Abi> &a, const rect<T, Abi> &b) noexcept
+	[[nodiscard]] inline bool operator!=(const basic_rect<T, Abi> &a, const basic_rect<T, Abi> &b) noexcept
 	{
 		return a.min() != a.max() & b.min() != b.max();
 	}
@@ -97,15 +97,27 @@ namespace sek
 	/** Gets coordinates of the `I`th corner of the rectangle.
 	 * @note `I` must either be `0` or `1`. */
 	template<std::size_t I, typename T, typename Abi>
-	[[nodiscard]] constexpr typename rect<T, Abi>::vector_type &get(rect<T, Abi> &x) noexcept requires (I < 2) { return x.m_data[I]; }
+	[[nodiscard]] constexpr typename basic_rect<T, Abi>::vector_type &get(basic_rect<T, Abi> &x) noexcept requires (I < 2) { return x.m_data[I]; }
 	/** @copydoc get */
 	template<std::size_t I, typename T, typename Abi>
-	[[nodiscard]] constexpr const typename rect<T, Abi>::vector_type &get(const rect<T, Abi> &x) noexcept requires (I < 2) { return x.m_data[I]; }
+	[[nodiscard]] constexpr const typename basic_rect<T, Abi>::vector_type &get(const basic_rect<T, Abi> &x) noexcept requires (I < 2) { return x.m_data[I]; }
+
+#pragma region "basic_rect aliases"
+	/** Alias for rectangle that uses implementation-defined ABI deduced from it's type and optional ABI hint. */
+	template<typename T, typename Abi = math_abi::fixed_size<2>>
+	using rect = basic_rect<T, math_abi::deduce_t<T, 2, Abi>>;
+	/** Alias for rectangle that uses compatible (implementation-defined) ABI. */
+	template<typename T>
+	using compat_rect = basic_rect<T, math_abi::deduce_t<T, 2, math_abi::compatible<T>>>;
+	/** Alias for rectangle that uses packed (non-vectorized) ABI. */
+	template<typename T>
+	using packed_rect = basic_rect<T, math_abi::packed_buffer<2>>;
+#pragma endregion
 
 #pragma region "projection functions"
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	template<typename A>
-	basic_mat<T, NCols, NRows, Abi> basic_mat<T, NCols, NRows, Abi>::rect_projection(const rect<T, A> &sr, const rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4)
+	basic_mat<T, NCols, NRows, Abi> basic_mat<T, NCols, NRows, Abi>::rect_projection(const basic_rect<T, A> &sr, const basic_rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4)
 	{
 		const auto sr_size = sr.size();
 		SEK_ASSERT((sr_size > vec2<T, A>{0}));
@@ -121,7 +133,7 @@ namespace sek
 	 * @param vp Viewport rectangle.
 	 * @return Coordinates of the object in viewport space. */
 	template<typename T, typename AP, typename AM = math_abi::deduce_t<T, 4, AP>, typename AR = math_abi::deduce_t<T, 2, AM>>
-	[[nodiscard]] inline basic_vec<T, 3, AP> project(const basic_vec<T, 3, AP> &pos, const basic_mat<T, 4, 4, AM> &m, const basic_mat<T, 4, 4, AM> &p, const rect<T, AR> &vp) noexcept
+	[[nodiscard]] inline basic_vec<T, 3, AP> project(const basic_vec<T, 3, AP> &pos, const basic_mat<T, 4, 4, AM> &m, const basic_mat<T, 4, 4, AM> &p, const basic_rect<T, AR> &vp) noexcept
 	{
 		auto a = p * m * basic_vec<T, 4, AM>{pos, 1};
 		a = fmadd((a / a.w()), {0.5}, {0.5});
@@ -134,7 +146,7 @@ namespace sek
 	 * @param vp Viewport rectangle.
 	 * @return Coordinates of the object in world space. */
 	template<typename T, typename AP, typename AM = math_abi::deduce_t<T, 4, AP>, typename AR = math_abi::deduce_t<T, 2, AM>>
-	[[nodiscard]] inline basic_vec<T, 3, AP> unproject(const basic_vec<T, 3, AP> &pos, const basic_mat<T, 4, 4, AM> &m, const basic_mat<T, 4, 4, AM> &p, const rect<T, AR> &vp) noexcept
+	[[nodiscard]] inline basic_vec<T, 3, AP> unproject(const basic_vec<T, 3, AP> &pos, const basic_mat<T, 4, 4, AM> &m, const basic_mat<T, 4, 4, AM> &p, const basic_rect<T, AR> &vp) noexcept
 	{
 		const auto a = (pos.xy() - vp.min()) / vp.max();
 		const auto b = basic_vec<T, 4, AM>{a, pos.z(), 1} * T{2} - T{1};
@@ -143,18 +155,18 @@ namespace sek
 	}
 #pragma endregion
 
-#pragma region "epsilon comparison functions"
+#pragma region "comparison functions"
 	/** Determines if elements of rectangle \a a are within relative epsilon \a e_rel or absolute epsilon \a e_abs of rectangle \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
 	template<std::floating_point T, typename A>
-	[[nodiscard]] inline bool fcmp_eq(const rect<T, A> &a, const rect<T, A> &b, T e_rel, T e_abs) noexcept
+	[[nodiscard]] inline bool fcmp_eq(const basic_rect<T, A> &a, const basic_rect<T, A> &b, T e_rel, T e_abs) noexcept
 	{
 		return fcmp_eq(a.min(), b.min(), e_abs, e_rel) & fcmp_eq(a.max(), b.max(), e_abs, e_rel);
 	}
 	/** @copydoc fcmp_eq
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, typename T3, typename A>
-	[[nodiscard]] inline bool fcmp_eq(const rect<T0, A> &a, const rect<T1, A> &b, T2 e_rel, T3 e_abs) noexcept
+	[[nodiscard]] inline bool fcmp_eq(const basic_rect<T0, A> &a, const basic_rect<T1, A> &b, T2 e_rel, T3 e_abs) noexcept
 	{
 		return fcmp_eq(a.min(), b.min(), e_abs, e_rel) & fcmp_eq(a.max(), b.max(), e_abs, e_rel);
 	}
@@ -162,23 +174,23 @@ namespace sek
 	/** Determines if elements of rectangle \a a are within epsilon \a e of rectangle \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
 	template<std::floating_point T, typename A>
-	[[nodiscard]] inline bool fcmp_eq(const rect<T, A> &a, const rect<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_eq(a, b, e, e); }
+	[[nodiscard]] inline bool fcmp_eq(const basic_rect<T, A> &a, const basic_rect<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_eq(a, b, e, e); }
 	/** @copydoc fcmp_eq
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, typename A>
-	[[nodiscard]] inline bool fcmp_eq(const rect<T0, A> &a, const rect<T1, A> &b, T2 e) noexcept { return fcmp_eq(a, b, e, e); }
+	[[nodiscard]] inline bool fcmp_eq(const basic_rect<T0, A> &a, const basic_rect<T1, A> &b, T2 e) noexcept { return fcmp_eq(a, b, e, e); }
 
 	/** Determines if elements of rectangle \a a are not within relative epsilon \a e_rel or absolute epsilon \a e_abs of rectangle \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
 	template<std::floating_point T, typename A>
-	[[nodiscard]] inline bool fcmp_ne(const rect<T, A> &a, const rect<T, A> &b, T e_rel, T e_abs) noexcept
+	[[nodiscard]] inline bool fcmp_ne(const basic_rect<T, A> &a, const basic_rect<T, A> &b, T e_rel, T e_abs) noexcept
 	{
 		return fcmp_ne(a.min(), b.min(), e_abs, e_rel) & fcmp_ne(a.max(), b.max(), e_abs, e_rel);
 	}
 	/** @copydoc fcmp_ne
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, typename T3, typename A>
-	[[nodiscard]] inline bool fcmp_ne(const rect<T0, A> &a, const rect<T1, A> &b, T2 e_rel, T3 e_abs) noexcept
+	[[nodiscard]] inline bool fcmp_ne(const basic_rect<T0, A> &a, const basic_rect<T1, A> &b, T2 e_rel, T3 e_abs) noexcept
 	{
 		return fcmp_ne(a.min(), b.min(), e_abs, e_rel) & fcmp_ne(a.max(), b.max(), e_abs, e_rel);
 	}
@@ -186,15 +198,10 @@ namespace sek
 	/** Determines if elements of rectangle \a a are not within epsilon \a e of rectangle \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
 	template<std::floating_point T, typename A>
-	[[nodiscard]] inline bool fcmp_ne(const rect<T, A> &a, const rect<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_ne(a, b, e, e); }
+	[[nodiscard]] inline bool fcmp_ne(const basic_rect<T, A> &a, const basic_rect<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_ne(a, b, e, e); }
 	/** @copydoc fcmp_ne
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T0, typename T1, typename T2, typename A>
-	[[nodiscard]] inline bool fcmp_ne(const rect<T0, A> &a, const rect<T1, A> &b, T2 e) noexcept { return fcmp_ne(a, b, e, e); }
+	[[nodiscard]] inline bool fcmp_ne(const basic_rect<T0, A> &a, const basic_rect<T1, A> &b, T2 e) noexcept { return fcmp_ne(a, b, e, e); }
 #pragma endregion
 }
-
-template<typename T, typename Abi>
-struct std::tuple_size<sek::rect<T, Abi>> : std::integral_constant<std::size_t, 2> {};
-template<std::size_t I, typename T, typename Abi> requires (I < 2)
-struct std::tuple_element<I, sek::rect<T, Abi>> { using type = typename sek::rect<T, Abi>::vector_type; };

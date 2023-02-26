@@ -93,7 +93,7 @@ namespace sek
 		 * @param sr Subregion of the viewport to project onto.
 		 * @param vp Viewport rectangle the subregion belongs to. */
 		template<typename A = math_abi::deduce_t<T, 4, Abi>>
-		[[nodiscard]] static inline basic_mat rect_projection(const rect<T, A> &sr, const rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4);
+		[[nodiscard]] static inline basic_mat rect_projection(const basic_rect<T, A> &sr, const basic_rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4);
 
 	private:
 		static inline void assert_cols(std::size_t i) { if (i >= NCols) [[unlikely]] throw std::range_error("Column index out of range"); }
@@ -120,6 +120,11 @@ namespace sek
 					m_data[i][j] = i == j ? T{1} : T{0};
 			}
 		}
+
+		/** Initializes the matrix from a quaternion rotation.
+		 * @note This function is defined only for 3x3 and 4x4 matrices. */
+		template<typename A>
+		inline basic_mat(const basic_quat<T, A> &x) noexcept requires (NCols == NRows && (NCols == 3 || NCols == 4));
 
 		/** Returns the number of columns in the matrix. */
 		[[nodiscard]] constexpr std::size_t cols() const noexcept { return NCols; }

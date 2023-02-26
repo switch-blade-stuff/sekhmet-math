@@ -37,6 +37,14 @@ namespace sek
 
 	template<typename T, std::size_t N, typename Abi>
 	class basic_vec_mask;
+	template<typename T, std::size_t N, typename Abi>
+	class basic_vec;
+	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
+	class basic_mat;
+	template<typename T, typename Abi>
+	class basic_quat;
+	template<typename T, typename Abi>
+	class basic_rect;
 
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr typename basic_vec_mask<T, N, Abi>::simd_type &to_simd(basic_vec_mask<T, N, Abi> &x) noexcept;
@@ -44,18 +52,9 @@ namespace sek
 	[[nodiscard]] constexpr const typename basic_vec_mask<T, N, Abi>::simd_type &to_simd(const basic_vec_mask<T, N, Abi> &x) noexcept;
 
 	template<typename T, std::size_t N, typename Abi>
-	class basic_vec;
-
-	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr typename basic_vec<T, N, Abi>::simd_type &to_simd(basic_vec<T, N, Abi> &x) noexcept;
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] constexpr const typename basic_vec<T, N, Abi>::simd_type &to_simd(const basic_vec<T, N, Abi> &x) noexcept;
-
-	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
-	class basic_mat;
-
-	template<typename T, typename Abi>
-	class rect;
 }
 
 template<typename T, std::size_t N, typename Abi>
@@ -72,3 +71,13 @@ template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 struct std::tuple_size<sek::basic_mat<T, NCols, NRows, Abi>> : std::integral_constant<std::size_t, NCols> {};
 template<std::size_t I, typename T, std::size_t NCols, std::size_t NRows, typename Abi> requires(I < NCols)
 struct std::tuple_element<I, sek::basic_mat<T, NCols, NRows, Abi>> { using type = typename sek::basic_mat<T, NCols, NRows, Abi>::col_type; };
+
+template<typename T, typename Abi>
+struct std::tuple_size<sek::basic_rect<T, Abi>> : std::integral_constant<std::size_t, 2> {};
+template<std::size_t I, typename T, typename Abi> requires (I < 2)
+struct std::tuple_element<I, sek::basic_rect<T, Abi>> { using type = typename sek::basic_rect<T, Abi>::vector_type; };
+
+template<typename T, typename Abi>
+struct std::tuple_size<sek::basic_quat<T, Abi>> : std::integral_constant<std::size_t, 4> {};
+template<std::size_t I, typename T, typename Abi> requires (I < 2)
+struct std::tuple_element<I, sek::basic_quat<T, Abi>> { using type = typename sek::basic_quat<T, Abi>::value_type; };
