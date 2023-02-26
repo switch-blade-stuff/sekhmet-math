@@ -6,4 +6,5 @@
 
 #include "detail/type_mat.hpp"
 #include "detail/fcmp_mat.hpp"
+#include "detail/inverse.hpp"
 #include "detail/trans.hpp"
