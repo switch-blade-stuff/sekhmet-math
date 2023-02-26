@@ -142,6 +142,56 @@ namespace sek
 		return c.xyz() / c.w();
 	}
 #pragma endregion
+
+#pragma region "epsilon comparison functions"
+	/** Determines if elements of rectangle \a a are within relative epsilon \a e_rel or absolute epsilon \a e_abs of rectangle \a b.
+	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
+	template<std::floating_point T, typename A>
+	[[nodiscard]] inline bool fcmp_eq(const rect<T, A> &a, const rect<T, A> &b, T e_rel, T e_abs) noexcept
+	{
+		return fcmp_eq(a.min(), b.min(), e_abs, e_rel) & fcmp_eq(a.max(), b.max(), e_abs, e_rel);
+	}
+	/** @copydoc fcmp_eq
+	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T0, typename T1, typename T2, typename T3, typename A>
+	[[nodiscard]] inline bool fcmp_eq(const rect<T0, A> &a, const rect<T1, A> &b, T2 e_rel, T3 e_abs) noexcept
+	{
+		return fcmp_eq(a.min(), b.min(), e_abs, e_rel) & fcmp_eq(a.max(), b.max(), e_abs, e_rel);
+	}
+
+	/** Determines if elements of rectangle \a a are within epsilon \a e of rectangle \a b.
+	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
+	template<std::floating_point T, typename A>
+	[[nodiscard]] inline bool fcmp_eq(const rect<T, A> &a, const rect<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_eq(a, b, e, e); }
+	/** @copydoc fcmp_eq
+	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T0, typename T1, typename T2, typename A>
+	[[nodiscard]] inline bool fcmp_eq(const rect<T0, A> &a, const rect<T1, A> &b, T2 e) noexcept { return fcmp_eq(a, b, e, e); }
+
+	/** Determines if elements of rectangle \a a are not within relative epsilon \a e_rel or absolute epsilon \a e_abs of rectangle \a b.
+	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
+	template<std::floating_point T, typename A>
+	[[nodiscard]] inline bool fcmp_ne(const rect<T, A> &a, const rect<T, A> &b, T e_rel, T e_abs) noexcept
+	{
+		return fcmp_ne(a.min(), b.min(), e_abs, e_rel) & fcmp_ne(a.max(), b.max(), e_abs, e_rel);
+	}
+	/** @copydoc fcmp_ne
+	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T0, typename T1, typename T2, typename T3, typename A>
+	[[nodiscard]] inline bool fcmp_ne(const rect<T0, A> &a, const rect<T1, A> &b, T2 e_rel, T3 e_abs) noexcept
+	{
+		return fcmp_ne(a.min(), b.min(), e_abs, e_rel) & fcmp_ne(a.max(), b.max(), e_abs, e_rel);
+	}
+
+	/** Determines if elements of rectangle \a a are not within epsilon \a e of rectangle \a b.
+	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
+	template<std::floating_point T, typename A>
+	[[nodiscard]] inline bool fcmp_ne(const rect<T, A> &a, const rect<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_ne(a, b, e, e); }
+	/** @copydoc fcmp_ne
+	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T0, typename T1, typename T2, typename A>
+	[[nodiscard]] inline bool fcmp_ne(const rect<T0, A> &a, const rect<T1, A> &b, T2 e) noexcept { return fcmp_ne(a, b, e, e); }
+#pragma endregion
 }
 
 template<typename T, typename Abi>
