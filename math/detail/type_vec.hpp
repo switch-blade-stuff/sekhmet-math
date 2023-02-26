@@ -361,35 +361,35 @@ namespace sek
 
 		/** Returns an `up` unit vector. Equivalent to `basic_vec{0, 1}`.
 		 * @note This overload is defined only for 2D vectors. */
-		[[nodiscard]] inline static basic_vec up() noexcept requires (std::is_signed_v<T> && N == 2);
+		[[nodiscard]] static inline basic_vec up() noexcept requires (std::is_signed_v<T> && N == 2);
 		/** Returns a `down` unit vector. Equivalent to `basic_vec{0, -1}`.
 		 * @note This overload is defined only for 2D vectors. */
-		[[nodiscard]] inline static basic_vec down() noexcept requires (std::is_signed_v<T> && N == 2);
+		[[nodiscard]] static inline basic_vec down() noexcept requires (std::is_signed_v<T> && N == 2);
 		/** Returns a `left` unit vector. Equivalent to `basic_vec{-1, 0}`.
 		 * @note This overload is defined only for 2D vectors. */
-		[[nodiscard]] inline static basic_vec left() noexcept requires (std::is_signed_v<T> && N == 2);
+		[[nodiscard]] static inline basic_vec left() noexcept requires (std::is_signed_v<T> && N == 2);
 		/** Returns a `right` unit vector. Equivalent to `basic_vec{1, 0}`.
 		 * @note This overload is defined only for 2D vectors. */
-		[[nodiscard]] inline static basic_vec right() noexcept requires (std::is_signed_v<T> && N == 2);
+		[[nodiscard]] static inline basic_vec right() noexcept requires (std::is_signed_v<T> && N == 2);
 
 		/** Returns an `up` unit vector. Equivalent to `basic_vec{0, 1, 0}`.
 		 * @note This overload is defined only for 3D vectors. */
-		[[nodiscard]] inline static basic_vec up() noexcept requires (std::is_signed_v<T> && N == 3);
+		[[nodiscard]] static inline basic_vec up() noexcept requires (std::is_signed_v<T> && N == 3);
 		/** Returns a `down` unit vector. Equivalent to `basic_vec{0, -1, 0}`.
 		 * @note This overload is defined only for 3D vectors. */
-		[[nodiscard]] inline static basic_vec down() noexcept requires (std::is_signed_v<T> && N == 3);
+		[[nodiscard]] static inline basic_vec down() noexcept requires (std::is_signed_v<T> && N == 3);
 		/** Returns a `left` unit vector. Equivalent to `basic_vec{-1, 0, 0}`.
 		 * @note This overload is defined only for 3D vectors. */
-		[[nodiscard]] inline static basic_vec left() noexcept requires (std::is_signed_v<T> && N == 3);
+		[[nodiscard]] static inline basic_vec left() noexcept requires (std::is_signed_v<T> && N == 3);
 		/** Returns a `right` unit vector. Equivalent to `basic_vec{1, 0, 0}`.
 		 * @note This overload is defined only for 3D vectors. */
-		[[nodiscard]] inline static basic_vec right() noexcept requires (std::is_signed_v<T> && N == 3);
+		[[nodiscard]] static inline basic_vec right() noexcept requires (std::is_signed_v<T> && N == 3);
 		/** Returns a `forward` unit vector. Equivalent to `basic_vec{0, 0, -1}` (or `basic_vec{0, 0, 1}` if using left-handed coordinates).
 		 * @note This overload is defined only for 3D vectors. */
-		[[nodiscard]] inline static basic_vec forward() noexcept requires (std::is_signed_v<T> && N == 3);
+		[[nodiscard]] static inline basic_vec forward() noexcept requires (std::is_signed_v<T> && N == 3);
 		/** Returns a `backward` unit vector. Equivalent to `basic_vec{0, 0, 1}` (or `basic_vec{0, 0, -1}` if using left-handed coordinates).
 		 * @note This overload is defined only for 3D vectors. */
-		[[nodiscard]] inline static basic_vec backward() noexcept requires (std::is_signed_v<T> && N == 3);
+		[[nodiscard]] static inline basic_vec backward() noexcept requires (std::is_signed_v<T> && N == 3);
 
 	private:
 		static inline void assert_idx(std::size_t i) { if (i >= N) [[unlikely]] throw std::range_error("Element index out of range"); }

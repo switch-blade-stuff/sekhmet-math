@@ -9,9 +9,6 @@
 
 namespace sek
 {
-	template<typename T, typename Abi>
-	class rect;
-
 	template<std::size_t I, typename T, typename Abi>
 	[[nodiscard]] constexpr typename rect<T, Abi>::vector_type &get(rect<T, Abi> &x) noexcept requires (I < 2);
 	template<std::size_t I, typename T, typename Abi>
@@ -106,6 +103,17 @@ namespace sek
 	[[nodiscard]] constexpr const typename rect<T, Abi>::vector_type &get(const rect<T, Abi> &x) noexcept requires (I < 2) { return x.m_data[I]; }
 
 #pragma region "projection functions"
+	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
+	template<typename A>
+	basic_mat<T, NCols, NRows, Abi> basic_mat<T, NCols, NRows, Abi>::rect_projection(const rect<T, A> &sr, const rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4)
+	{
+		const auto sr_size = sr.size();
+		SEK_ASSERT((sr_size > vec2<T, A>{0}));
+
+		const auto tmp = (fmadd({2}, vp.min(), vp.max()) - sr.max() - sr.min()) / sr_size;
+		return scale(translate(mat4x4<T, A>::identity(), {tmp, 0}), {vp.max() / sr_size, 1});
+	}
+
 	/** Maps object coordinate vector \a obj from world-space coordinates to screen-space coordinates of a viewport specified by rectangle \a vp using model view and projection matrices \a m & \a p.
 	 * @param pos World-space coordinates of an object to be projected.
 	 * @param m Model view matrix.
@@ -132,20 +140,6 @@ namespace sek
 		const auto b = basic_vec<T, 4, AM>{a, pos.z(), 1} * T{2} - T{1};
 		const auto c = inverse(p * m) * b;
 		return c.xyz() / c.w();
-	}
-
-	/** Creates a matrix used to project screen-space coordinates of a viewport defined by rectangle \a vp onto a subregion defined by rectangle \a sr.
-	 * @param sr Subregion of the viewport to project onto.
-	 * @param vp Viewport rectangle the subregion belongs to.
-	 * @return 4x4 projection matrix used to map screen-space coordinates of \a vp to screen-space coordinates of \a sr. */
-	template<typename T, typename A>
-	[[nodiscard]] inline mat4x4<T, A> rect_projection(const rect<T, A> &sr, const rect<T, A> &vp) noexcept
-	{
-		const auto sr_size = sr.size();
-		SEK_ASSERT((sr_size > vec2<T, A>{0}));
-
-		const auto tmp = (fmadd({2}, vp.min(), vp.max()) - sr.max() - sr.min()) / sr_size;
-		return scale(translate(mat4x4<T, A>::identity(), {tmp, 0}), {vp.max() / sr_size, 1});
 	}
 #pragma endregion
 }

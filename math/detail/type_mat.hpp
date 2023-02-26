@@ -52,15 +52,14 @@ namespace sek
 
 		/** Returns identity matrix. Equivalent to `basic_mat{1}`.
 		 * @note This function is defined only for matrices where `cols() == rows()`. */
-		[[nodiscard]] inline static basic_mat identity() noexcept requires (NCols == NRows);
+		[[nodiscard]] static inline basic_mat identity() noexcept requires (NCols == NRows);
 
 		/** Creates a look-at transform matrix used to rotate an origin vector \a org in the look direction \a dir using the up direction \a up with default handedness.
 	 	 * @param org Origin vector to be rotated.
 	 	 * @param dir Direction vector to rotate the origin towards.
 	 	 * @param up Normalized up vector.
-		 * @return Resulting transform matrix.
 		 * @note This function is defined only for 4x4 matrices. */
-		template<typename A>
+		template<typename A = math_abi::deduce_t<T, 3, Abi>>
 		[[nodiscard]] static SEK_FORCEINLINE basic_mat look_at(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
 		{
 #ifndef SEK_FORCE_LEFT_HANDED
@@ -73,9 +72,8 @@ namespace sek
 		 * @param org Origin vector to be rotated.
 		 * @param dir Direction vector to rotate the origin towards.
 		 * @param up Normalized up vector.
-		 * @return Resulting transform matrix.
 		 * @note This function is defined only for 4x4 matrices. */
-		template<typename A>
+		template<typename A = math_abi::deduce_t<T, 3, Abi>>
 		[[nodiscard]] static basic_mat look_at_rh(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
 		{
 			return detail::impl_look_at_rh<T, Abi, A>(org, dir, up);
@@ -84,13 +82,18 @@ namespace sek
 		 * @param org Origin vector to be rotated.
 		 * @param dir Direction vector to rotate the origin towards.
 		 * @param up Normalized up vector.
-		 * @return Resulting transform matrix.
 		 * @note This function is defined only for 4x4 matrices. */
-		template<typename A>
+		template<typename A = math_abi::deduce_t<T, 3, Abi>>
 		[[nodiscard]] static basic_mat look_at_lh(const basic_vec<T, 3, A> &org, const basic_vec<T, 3, A> &dir, const basic_vec<T, 3, A> &up = basic_vec<T, 3, A>::up()) noexcept requires (NCols == NRows && NCols == 4)
 		{
 			return detail::impl_look_at_lh<T, Abi, A>(org, dir, up);
 		}
+
+		/** Creates a projection matrix used to map screen-space coordinates of a viewport defined by rectangle \a vp onto a subregion defined by rectangle \a sr.
+		 * @param sr Subregion of the viewport to project onto.
+		 * @param vp Viewport rectangle the subregion belongs to. */
+		template<typename A = math_abi::deduce_t<T, 4, Abi>>
+		[[nodiscard]] static inline basic_mat rect_projection(const rect<T, A> &sr, const rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4);
 
 	private:
 		static inline void assert_cols(std::size_t i) { if (i >= NCols) [[unlikely]] throw std::range_error("Column index out of range"); }

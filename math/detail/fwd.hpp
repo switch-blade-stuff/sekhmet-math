@@ -53,6 +53,9 @@ namespace sek
 
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	class basic_mat;
+
+	template<typename T, typename Abi>
+	class rect;
 }
 
 template<typename T, std::size_t N, typename Abi>

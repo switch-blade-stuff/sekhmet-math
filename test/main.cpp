@@ -6,11 +6,6 @@
 #include <math/matrix.hpp>
 #include <math/screen.hpp>
 
-auto test(sek::vec3<float> obj, sek::mat4x4<float> m, sek::mat4x4<float> p)
-{
-	return sek::unproject(obj, m, p, sek::rect<float>{{0}, {1}});
-}
-
 int main()
 {
 	/* | 1 | 2 | 4 |
