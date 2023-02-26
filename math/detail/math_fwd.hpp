@@ -5,8 +5,7 @@
 #pragma once
 
 #include "type_vec.hpp"
-
-#include <dpm/math.hpp>
+#include "utility.hpp"
 
 namespace sek::detail
 {

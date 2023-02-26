@@ -23,49 +23,9 @@ namespace sek
 		return fmsub(a231, b312, a312 * b231);
 	}
 
-	namespace detail
-	{
-		/* Dot product of a vector with itself is assumed to never be negative, as such no error checking is needed. */
-#ifdef __SSE__
-		[[nodiscard]] inline float do_sqrt(float dp) noexcept { return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(dp))); }
-		/* rsqrt breaks constant folding and is less precise than 1 / sqrt(x). */
-		//[[nodiscard]] inline float do_rsqrt(float dp) noexcept { return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(dp))); }
-#endif
-#ifdef __SSE2__
-		[[nodiscard]] inline double do_sqrt(double dp) noexcept
-		{
-			const auto v_dp = _mm_set_sd(dp);
-			return _mm_cvtsd_f64(_mm_sqrt_sd(v_dp, v_dp));
-		}
-#endif
-		template<typename T>
-		[[nodiscard]] inline T do_sqrt(T dp) noexcept { return static_cast<T>(std::sqrt(dp)); }
-		template<typename T>
-		[[nodiscard]] inline T do_rsqrt(T dp) noexcept { return static_cast<T>(1) / do_sqrt(dp); }
-
-		template<typename T>
-		[[nodiscard]] inline T do_fma(T a, T b, T c) noexcept { return a * b + c; }
-#if defined(__FMA__) || (defined(_MSC_VER) && defined(__AVX2__))
-		[[nodiscard]] inline float do_fma(float a, float b, float c) noexcept
-		{
-			const auto va = _mm_set_ss(a);
-			const auto vb = _mm_set_ss(b);
-			const auto vc = _mm_set_ss(c);
-			return _mm_cvtss_f32(_mm_fmadd_ss(va, vb, vc));
-		}
-		[[nodiscard]] inline double do_fma(double a, double b, double c) noexcept
-		{
-			const auto va = _mm_set_sd(a);
-			const auto vb = _mm_set_sd(b);
-			const auto vc = _mm_set_sd(c);
-			return _mm_cvtsd_f64(_mm_fmadd_sd(va, vb, vc));
-		}
-#endif
-	}
-
 	/** Calculates the magnitude of vector \a x. Equivalent to `std::sqrt(dot(x, x))`. */
 	template<std::floating_point T, std::size_t N, typename A>
-	[[nodiscard]] inline T magn(const basic_vec<T, N, A> &x) noexcept { return detail::do_sqrt(dot(x, x)); }
+	[[nodiscard]] inline T magn(const basic_vec<T, N, A> &x) noexcept { return detail::sqrt(dot(x, x)); }
 	/** Calculates the Euclidean distance between vectors \a a and \a b. */
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline T dist(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return magn(a - b); }
@@ -80,7 +40,7 @@ namespace sek
 
 	/** Returns normalized copy (length 1) of vector \a x. */
 	template<std::floating_point T, std::size_t N, typename A>
-	[[nodiscard]] inline basic_vec<T, N, A> normalize(const basic_vec<T, N, A> &x) noexcept { return x * detail::do_rsqrt(dot(x, x)); }
+	[[nodiscard]] inline basic_vec<T, N, A> normalize(const basic_vec<T, N, A> &x) noexcept { return x * detail::rsqrt(dot(x, x)); }
 	/** @copydoc normalize
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
@@ -121,8 +81,8 @@ namespace sek
 	[[nodiscard]] inline basic_vec<T, N, A> refract(const basic_vec<T, N, A> &i, const basic_vec<T, N, A> &n, T e) noexcept
 	{
 		const auto dp = dot(n, i);
-		const auto k = detail::do_fma(e * e, detail::do_fma(dp, dp, static_cast<T>(-1)), static_cast<T>(-1));
-		return k >= static_cast<T>(0) ? fmsub(i, {e}, n * detail::do_fma(e, dp, detail::do_sqrt(k))) : basic_vec<T, N, A>{0};
+		const auto k = detail::fmadd(e * e, detail::fmadd(dp, dp, static_cast<T>(-1)), static_cast<T>(-1));
+		return k >= static_cast<T>(0) ? fmsub(i, {e}, n * detail::fmadd(e, dp, detail::sqrt(k))) : basic_vec<T, N, A>{0};
 	}
 	/** @copydoc refract
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */

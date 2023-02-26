@@ -88,8 +88,7 @@ namespace sek
 		basic_vec_mask(const I &first, const I &last) requires std::is_convertible_v<std::iter_value_t<I>, value_type>
 		{
 			if (std::distance(first, last) < static_cast<std::ptrdiff_t>(N))
-				[[unlikely]]
-						throw std::range_error("Iterator distance is less than vector mask size");
+				[[unlikely]] throw std::range_error("Iterator distance is less than vector mask size");
 
 			if constexpr (N > 1)
 				m_data.copy_from(std::to_address(first), dpm::element_aligned);
@@ -413,8 +412,7 @@ namespace sek
 		basic_vec(const I &first, const I &last) requires std::is_convertible_v<std::iter_value_t<I>, value_type>
 		{
 			if (std::distance(first, last) < static_cast<std::ptrdiff_t>(N))
-				[[unlikely]]
-						throw std::range_error("Iterator distance is less than vector mask size");
+				[[unlikely]] throw std::range_error("Iterator distance is less than vector mask size");
 
 			if constexpr (N > 1)
 				m_data.copy_from(std::to_address(first), dpm::element_aligned);
