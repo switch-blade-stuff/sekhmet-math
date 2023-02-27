@@ -60,38 +60,37 @@ namespace sek
 		result[3] = c3;
 		return result;
 	}
-	/** Rotates a 4x4 transform matrix \a m about axis \a v using angle \a a.
+	/** Rotates a 4x4 transform matrix \a m about normalized axis \a v using angle \a a.
 	 * @param m Transform matrix to rotate.
 	 * @param a Rotation angle.
 	 * @param v Rotation axis vector.
-	 * @return 4x4 transform matrix with rotation applied. */
+	 * @return 4x4 transform matrix with rotation applied.
+	 * @note Rotation axis must be normalized. */
 	template<typename T, typename AM, typename AV = math_abi::deduce_t<T, 3, AM>>
 	[[nodiscard]] inline basic_mat<T, 4, 4, AM> rotate(const basic_mat<T, 4, 4, AM> &m, T a, const basic_vec<T, 3, AV> &v) noexcept
 	{
-		const auto a_cos = std::cos(a);
-		const auto a_sin = std::sin(a);
-		const auto axis = normalize(v);
-		const auto temp = axis * (T{1} - a_cos);
+		const auto [a_sin, a_cos] = detail::sincos(a);
+		const auto temp = v * (T{1} - a_cos);
 
 		const auto a0 = basic_vec<T, 3, AV>{a_cos, a_sin, -a_sin};
 		const auto a1 = basic_vec<T, 3, AV>{-a_sin, a_cos, a_sin};
 		const auto a2 = basic_vec<T, 3, AV>{a_sin, -a_sin, a_cos};
 
 		/* {1, axis[2], axis[1]} */
-		auto b0 = shuffle<0, 2, 1>(axis);
+		auto b0 = shuffle<0, 2, 1>(v);
 		b0[0] = static_cast<T>(1);
 		/* {axis[2], 1, axis[0]} */
-		auto b1 = shuffle<2, 1, 0>(axis);
+		auto b1 = shuffle<2, 1, 0>(v);
 		b1[1] = static_cast<T>(1);
 		/* {axis[1], axis[0], 1} */
-		auto b2 = shuffle<1, 0, 2>(axis);
+		auto b2 = shuffle<1, 0, 2>(v);
 		b2[2] = static_cast<T>(1);
 
 		/* Build a temporary rotation-only matrix. */
 		basic_mat<T, 3, 3, AV> rot;
-		rot[0] = fmadd(axis, {temp[0]}, a0 * b0);
-		rot[1] = fmadd(axis, {temp[1]}, a1 * b1);
-		rot[2] = fmadd(axis, {temp[2]}, a2 * b2);
+		rot[0] = fmadd(v, {temp[0]}, a0 * b0);
+		rot[1] = fmadd(v, {temp[1]}, a1 * b1);
+		rot[2] = fmadd(v, {temp[2]}, a2 * b2);
 
 		/* Apply the rotation matrix to m. */
 		basic_mat<T, 4, 4, AM> result;

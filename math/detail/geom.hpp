@@ -9,18 +9,18 @@
 
 namespace sek
 {
-	/** Calculates the dot product of elements in vectors \a a and \a b. */
+	/** Calculates the dot product of vectors \a a and \a b. */
 	template<typename T, std::size_t N, typename A>
 	[[nodiscard]] inline T dot(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return hadd(a * b); }
-	/** Calculates the cross product of elements in vectors \a a and \a b. */
+	/** Calculates the cross product of vectors \a a and \a b. */
 	template<typename T, typename A>
 	[[nodiscard]] inline basic_vec<T, 3, A> cross(const basic_vec<T, 3, A> &a, const basic_vec<T, 3, A> &b) noexcept
 	{
-		const auto a231 = shuffle<2, 3, 1>(a);
-		const auto b231 = shuffle<2, 3, 1>(b);
-		const auto a312 = shuffle<3, 1, 2>(a);
-		const auto b312 = shuffle<3, 1, 2>(b);
-		return fmsub(a231, b312, a312 * b231);
+		const auto a120 = shuffle<1, 2, 0>(a);
+		const auto b120 = shuffle<1, 2, 0>(b);
+		const auto a201 = shuffle<2, 0, 1>(a);
+		const auto b201 = shuffle<2, 0, 1>(b);
+		return fmsub(a120, b201, a201 * b120);
 	}
 
 	/** Calculates the magnitude of vector \a x. Equivalent to `std::sqrt(dot(x, x))`. */
@@ -40,7 +40,13 @@ namespace sek
 
 	/** Returns normalized copy (length 1) of vector \a x. */
 	template<std::floating_point T, std::size_t N, typename A>
-	[[nodiscard]] inline basic_vec<T, N, A> normalize(const basic_vec<T, N, A> &x) noexcept { return x * detail::rsqrt(dot(x, x)); }
+	[[nodiscard]] inline basic_vec<T, N, A> normalize(const basic_vec<T, N, A> &x) noexcept
+	{
+		const auto dp = dot(x, x);
+		if (dp <= std::numeric_limits<T>::epsilon()) [[unlikely]]
+			return {0};
+		return x * detail::rsqrt(dp);
+	}
 	/** @copydoc normalize
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
 	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
@@ -51,7 +57,7 @@ namespace sek
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> faceforward(const basic_vec<T, N, A> &n, const basic_vec<T, N, A> &i, const basic_vec<T, N, A> &r) noexcept
 	{
-		return dot(r, i) < static_cast<T>(0) ? n : -n;
+		return dot(r, i) < T{0} ? n : -n;
 	}
 	/** @copydoc normalize
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */

@@ -122,7 +122,7 @@ namespace sek
 		}
 
 		/** Initializes the matrix from a quaternion rotation.
-		 * @note This function is defined only for 3x3 and 4x4 matrices. */
+		 * @note This constructor is defined only for 3x3 and 4x4 matrices. */
 		template<typename A>
 		inline basic_mat(const basic_quat<T, A> &x) noexcept requires (NCols == NRows && (NCols == 3 || NCols == 4));
 

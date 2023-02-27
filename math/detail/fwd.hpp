@@ -41,7 +41,7 @@ namespace sek
 	class basic_vec;
 	template<typename T, std::size_t NCols, std::size_t NRows, typename Abi>
 	class basic_mat;
-	template<typename T, typename Abi>
+	template<std::floating_point T, typename Abi>
 	class basic_quat;
 	template<typename T, typename Abi>
 	class basic_rect;

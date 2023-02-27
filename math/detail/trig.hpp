@@ -31,7 +31,7 @@ namespace sek
 	[[nodiscard]] inline basic_vec<T, N, A> atan2(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return {dpm::atan2(to_simd(a), to_simd(b))}; }
 	/** Calculates sine and cosine of elements in vector \a x, and assigns results to elements of \a out_sin and \a out_cos respectively. */
 	template<std::floating_point T, std::size_t N, typename A>
-	inline void sincos(const basic_vec<T, N, A> &x, basic_vec<T, N, A> &out_sin, basic_vec<T, N, A> &out_cos) noexcept { dpm::atan(to_simd(x), to_simd(out_sin), to_simd(out_cos)); }
+	inline void sincos(const basic_vec<T, N, A> &x, basic_vec<T, N, A> &out_sin, basic_vec<T, N, A> &out_cos) noexcept { dpm::sincos(to_simd(x), to_simd(out_sin), to_simd(out_cos)); }
 
 	/** @copydoc sin
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
