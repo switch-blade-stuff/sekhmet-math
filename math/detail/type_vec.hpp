@@ -231,7 +231,7 @@ namespace sek
 	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using vec4_mask = vec_mask<T, 4, Abi>;
 
-	/** Alias for vector mask that uses compatible (implementation-defined) ABI. */
+	/** Alias for vector mask that uses implementation-defined compatible ABI. */
 	template<typename T, std::size_t N>
 	using compat_vec_mask = basic_vec_mask<T, N, math_abi::deduce_t<T, N, math_abi::compatible<T>>>;
 	/** Alias for compatible-ABI vector mask of 1 element. */
@@ -588,7 +588,7 @@ namespace sek
 	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using vec4 = vec<T, 4, Abi>;
 
-	/** Alias for vector that uses compatible (implementation-defined) ABI. */
+	/** Alias for vector that uses implementation-defined compatible ABI. */
 	template<typename T, std::size_t N>
 	using compat_vec = basic_vec<T, N, math_abi::deduce_t<T, N, math_abi::compatible<T>>>;
 	/** Alias for compatible-ABI vector of 1 element. */

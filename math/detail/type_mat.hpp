@@ -297,7 +297,7 @@ namespace sek
 	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using mat4x4 = mat<T, 4, 4, Abi>;
 
-	/** Alias for matrix that uses compatible (implementation-defined) ABI. */
+	/** Alias for matrix that uses implementation-defined compatible ABI. */
 	template<typename T, std::size_t NCols, std::size_t NRows>
 	using compat_mat = basic_mat<T, NCols, NRows, math_abi::deduce_t<T, NRows, math_abi::compatible < T>>>;
 	/** Alias for compatible-ABI matrix of 2 columns by 2 rows. */

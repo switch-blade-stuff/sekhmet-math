@@ -272,7 +272,7 @@ namespace sek
 	/** Alias for quaternion that uses implementation-defined ABI deduced from it's type and optional ABI hint. */
 	template<typename T, typename Abi = math_abi::fixed_size<4>>
 	using quat = basic_quat<T, math_abi::deduce_t<T, 4, Abi>>;
-	/** Alias for quaternion that uses compatible (implementation-defined) ABI. */
+	/** Alias for quaternion that uses implementation-defined compatible ABI. */
 	template<typename T>
 	using compat_quat = basic_quat<T, math_abi::deduce_t<T, 4, math_abi::compatible<T>>>;
 	/** Alias for quaternion that uses packed (non-vectorized) ABI. */
@@ -313,7 +313,7 @@ namespace sek
 	}
 	/** Calculates the conjugate of quaternion \a x. */
 	template<typename T, typename Abi>
-	[[nodiscard]] inline basic_quat<T, Abi> conjugate(const basic_quat<T, Abi> &x) noexcept { return {-x.vector().xyz(), x.w()}; }
+	[[nodiscard]] inline basic_quat<T, Abi> conjugate(const basic_quat<T, Abi> &x) noexcept { return {basic_vec<T, 4, Abi>{-x.vector().xyz(), x.w()}}; }
 	/** Calculates the inverse of quaternion \a x. */
 	template<typename T, typename Abi>
 	[[nodiscard]] inline basic_quat<T, Abi> inverse(const basic_quat<T, Abi> &x) noexcept { return {conjugate(x).vector() / dot(x, x)}; }

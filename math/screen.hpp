@@ -106,7 +106,7 @@ namespace sek
 	/** Alias for rectangle that uses implementation-defined ABI deduced from it's type and optional ABI hint. */
 	template<typename T, typename Abi = math_abi::fixed_size<2>>
 	using rect = basic_rect<T, math_abi::deduce_t<T, 2, Abi>>;
-	/** Alias for rectangle that uses compatible (implementation-defined) ABI. */
+	/** Alias for rectangle that uses implementation-defined compatible ABI. */
 	template<typename T>
 	using compat_rect = basic_rect<T, math_abi::deduce_t<T, 2, math_abi::compatible<T>>>;
 	/** Alias for rectangle that uses packed (non-vectorized) ABI. */
