@@ -56,7 +56,7 @@ namespace sek
 		 * @note It is recommended to use `packed_vec` if euler angles are known at compile-time
 		 * in order to enable compile-time evaluation of quaternion constants. */
 		template<typename A = math_abi::deduce_t<T, 3, Abi>>
-		[[nodiscard]] static basic_quat from_euler(const basic_vec<T, 3, A> &angles)
+		[[nodiscard]] static basic_quat from_euler(const basic_vec<T, 3, A> &angles)noexcept
 		{
 			basic_vec<T, 3, A> sin_x, cos_x;
 			sincos(angles * T{0.5}, sin_x, cos_x);
@@ -74,11 +74,11 @@ namespace sek
 		 * @param angle Angle of the rotation.
 		 * @param axis Axis of the rotation. */
 		template<typename A = math_abi::deduce_t<T, 3, Abi>>
-		[[nodiscard]] static basic_quat angle_axis(T angle, const basic_vec<T, 3, A> &axis)
+		[[nodiscard]] static basic_quat angle_axis(T angle, const basic_vec<T, 3, A> &axis)noexcept
 		{
 			const auto a = angle * T{0.5};
 			const auto [s, c] = detail::sincos(a);
-			return vector_type{axis * s, c};
+			return {axis * s, c};
 		}
 
 		/** Creates a quaternion rotation used to rotate object in the look direction \a dir using the up direction \a up with default handedness.
@@ -118,7 +118,11 @@ namespace sek
 		constexpr basic_quat() noexcept = default;
 
 		/** Initializes the quaternion from 4 components. */
-		basic_quat(T x, T y, T z, T w) noexcept : m_vector(x, y, z, w) {}
+		template<typename U0, typename U1, typename U2, typename U3>
+		basic_quat(U0 x, U1 y, U2 z, U3 w) noexcept : m_vector(x, y, z, w) {}
+		/** Initializes the quaternion from a 3D vector of imaginary parts and a scalar real part. */
+		template<typename U0, typename U1, typename A>
+		basic_quat(const basic_vec<U0, 3, A> &i, U1 r) noexcept : m_vector(i, r) {}
 		/** Initializes the quaternion from a 4D vector. */
 		template<typename U, typename A>
 		constexpr basic_quat(const basic_vec<U, 4, A> &x) noexcept : m_vector(x) {}
@@ -299,7 +303,7 @@ namespace sek
 
 		const auto xyz = fmadd(a333, b012, fmadd(a012, b333, fmsub(a120, b201, a201 * b120)));
 		const auto w = detail::fmsub(a[3], b[3], detail::fmsub(a[0], b[0], detail::fmsub(a[1], b[1], a[2] * b[2])));
-		return basic_vec<T, 4, Abi>{xyz, w};
+		return {xyz, w};
 	}
 
 	/** Returns the normalized copy of quaternion \a x. */
@@ -309,14 +313,14 @@ namespace sek
 		const auto dp = dot(x, x);
 		if (dp <= std::numeric_limits<T>::epsilon()) [[unlikely]]
 			return {T{0}, T{0}, T{0}, T{1}};
-		return {x.vector() * detail::rsqrt(dp)};
+		return x.vector() * detail::rsqrt(dp);
 	}
 	/** Calculates the conjugate of quaternion \a x. */
 	template<typename T, typename Abi>
-	[[nodiscard]] inline basic_quat<T, Abi> conjugate(const basic_quat<T, Abi> &x) noexcept { return {basic_vec<T, 4, Abi>{-x.vector().xyz(), x.w()}}; }
+	[[nodiscard]] inline basic_quat<T, Abi> conjugate(const basic_quat<T, Abi> &x) noexcept { return {-x.vector().xyz(), x.w()}; }
 	/** Calculates the inverse of quaternion \a x. */
 	template<typename T, typename Abi>
-	[[nodiscard]] inline basic_quat<T, Abi> inverse(const basic_quat<T, Abi> &x) noexcept { return {conjugate(x).vector() / dot(x, x)}; }
+	[[nodiscard]] inline basic_quat<T, Abi> inverse(const basic_quat<T, Abi> &x) noexcept { return conjugate(x).vector() / dot(x, x); }
 #pragma endregion
 
 #pragma region "translation functions"
@@ -406,9 +410,9 @@ namespace sek
 
 #pragma region "basic_quat operators"
 	template<typename T, typename Abi>
-	[[nodiscard]] inline basic_quat<T, Abi> operator+(const basic_quat<T, Abi> &x) noexcept { return {+x.vector()}; }
+	[[nodiscard]] inline basic_quat<T, Abi> operator+(const basic_quat<T, Abi> &x) noexcept { return +x.vector(); }
 	template<typename T, typename Abi>
-	[[nodiscard]] inline basic_quat<T, Abi> operator-(const basic_quat<T, Abi> &x) noexcept { return {-x.vector()}; }
+	[[nodiscard]] inline basic_quat<T, Abi> operator-(const basic_quat<T, Abi> &x) noexcept { return -x.vector(); }
 
 	template<typename T, typename Abi>
 	[[nodiscard]] inline basic_quat<T, Abi> operator+(const basic_quat<T, Abi> &a, const basic_quat<T, Abi> &b) noexcept { return {a.vector() + b.vector()}; }
@@ -426,7 +430,7 @@ namespace sek
 		const auto b3 = b.vector().xyz();
 		const auto cp = cross(a3, b3);
 		const auto dp = dot(a3, b3);
-		return basic_vec<T, 4, Abi>{fmadd(b3, {a.w()}, fmadd(a3, {b.w()}, cp)), detail::fmsub(a.w(), b.w(), dp)};
+		return {fmadd(b3, {a.w()}, fmadd(a3, {b.w()}, cp)), detail::fmsub(a.w(), b.w(), dp)};
 	}
 	template<typename T, typename Abi>
 	inline basic_quat<T, Abi> &operator*=(basic_quat<T, Abi> &a, const basic_quat<T, Abi> &b) noexcept { return (a = a * b); }
@@ -437,7 +441,7 @@ namespace sek
 		const auto a3 = a.vector().xyz();
 		const auto u0 = cross(a3, b);
 		const auto u1 = cross(a3, u0);
-		return fmadd(fmadd(u0, {a.w()}, u1), T{2}, b);
+		return fmadd(fmadd(u0, {a.w()}, u1), basic_vec<T, 3, AV>{2}, b);
 	}
 	template<typename T, typename AV, typename AQ = math_abi::deduce_t<T, 4, AV>>
 	[[nodiscard]] inline basic_vec<T, 3, AV> operator*(const basic_vec<T, 3, AV> &a, const basic_quat<T, AQ> &b) noexcept { return inverse(b) * a; }
