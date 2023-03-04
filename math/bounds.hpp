@@ -18,7 +18,7 @@ namespace sek
 	 * @tparam T Value type of the underlying vectors.
 	 * @tparam N Dimension of the bounding volume.
 	 * @tparam Abi ABI tag used by the underlying vectors.
-	 * @note The \a Abi tag size must be `3`. */
+	 * @note \a N must be greater than `1` and the \a Abi tag size must match \a N. */
 	template<typename T, std::size_t N, typename Abi>
 	class basic_bounds
 	{
