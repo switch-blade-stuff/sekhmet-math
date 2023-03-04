@@ -151,7 +151,7 @@ namespace sek
 	}
 #pragma endregion
 
-#pragma region "basic_bbox operators"
+#pragma region "basic_bounds operators"
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] inline basic_bounds<T, N, Abi> operator+(const basic_bounds<T, N, Abi> &x) noexcept { return {+x.min(), +x.max()}; }
 	template<typename T, std::size_t N, typename Abi>
