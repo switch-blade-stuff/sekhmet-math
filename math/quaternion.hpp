@@ -56,7 +56,7 @@ namespace sek
 		 * @note It is recommended to use `packed_vec` if euler angles are known at compile-time
 		 * in order to enable compile-time evaluation of quaternion constants. */
 		template<typename A = math_abi::deduce_t<T, 3, Abi>>
-		[[nodiscard]] static basic_quat from_euler(const basic_vec<T, 3, A> &angles)noexcept
+		[[nodiscard]] static basic_quat from_euler(const basic_vec<T, 3, A> &angles) noexcept
 		{
 			basic_vec<T, 3, A> sin_x, cos_x;
 			sincos(angles * T{0.5}, sin_x, cos_x);
@@ -74,7 +74,7 @@ namespace sek
 		 * @param angle Angle of the rotation.
 		 * @param axis Axis of the rotation. */
 		template<typename A = math_abi::deduce_t<T, 3, Abi>>
-		[[nodiscard]] static basic_quat angle_axis(T angle, const basic_vec<T, 3, A> &axis)noexcept
+		[[nodiscard]] static basic_quat angle_axis(T angle, const basic_vec<T, 3, A> &axis) noexcept
 		{
 			const auto a = angle * T{0.5};
 			const auto [s, c] = detail::sincos(a);

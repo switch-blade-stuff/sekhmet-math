@@ -2,11 +2,7 @@
  * Created by switchblade on 2023-01-01.
  */
 
-#include <math/scalar.hpp>
-#include <math/vector.hpp>
-#include <math/matrix.hpp>
-#include <math/quaternion.hpp>
-#include <math/screen.hpp>
+#include <math/math.hpp>
 
 int main()
 {

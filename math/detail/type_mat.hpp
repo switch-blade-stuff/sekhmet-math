@@ -93,7 +93,7 @@ namespace sek
 		 * @param sr Subregion of the viewport to project onto.
 		 * @param vp Viewport rectangle the subregion belongs to. */
 		template<typename A = math_abi::deduce_t<T, 4, Abi>>
-		[[nodiscard]] static inline basic_mat rect_projection(const basic_rect<T, A> &sr, const basic_rect<T, A> &vp) noexcept requires (NCols == NRows && NCols == 4);
+		[[nodiscard]] static inline basic_mat rect_projection(const basic_bounds<T, 2, A> &sr, const basic_bounds<T, 2, A> &vp) noexcept requires (NCols == NRows && NCols == 4);
 
 	private:
 		static inline void assert_cols(std::size_t i) { if (i >= NCols) [[unlikely]] throw std::range_error("Column index out of range"); }
