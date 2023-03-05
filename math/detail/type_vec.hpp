@@ -354,6 +354,11 @@ namespace sek
 		using value_type = typename simd_type::value_type;
 		using mask_type = basic_vec_mask<T, N, Abi>;
 
+		/** Returns a vector of minimum values of `value_type`. */
+		[[nodiscard]] static inline basic_vec min() noexcept;
+		/** Returns a vector of maximum values of `value_type`. */
+		[[nodiscard]] static inline basic_vec max() noexcept;
+
 		/** Returns an `up` unit vector. Equivalent to `basic_vec{0, 1}`.
 		 * @note This overload is defined only for 2D vectors. */
 		[[nodiscard]] static inline basic_vec up() noexcept requires (std::is_signed_v<T> && N == 2);
@@ -509,6 +514,11 @@ namespace sek
 
 		simd_type m_data = {};
 	};
+
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::min() noexcept { return {std::numeric_limits<T>::min()}; }
+	template<typename T, std::size_t N, typename A>
+	basic_vec<T, N, A> basic_vec<T, N, A>::max() noexcept { return {std::numeric_limits<T>::max()}; }
 
 	template<typename T, std::size_t N, typename A>
 	basic_vec<T, N, A> basic_vec<T, N, A>::up() noexcept requires (std::is_signed_v<T> && N == 2) { return basic_vec<T, N, A>{0, 1}; }
