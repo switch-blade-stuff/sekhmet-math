@@ -233,20 +233,14 @@ namespace sek
 	{
 		if constexpr (NCols == 4) m_data[3] = col_type{0, 0, 0, 1};
 
-		const auto xx = x.x() * x.x();
-		const auto yy = x.y() * x.y();
-		const auto zz = x.z() * x.z();
-		const auto wx = x.w() * x.x();
-		const auto xy = x.x() * x.y();
-		const auto yz = x.y() * x.z();
-		const auto xz = x.x() * x.z();
-		const auto wy = x.w() * x.y();
-		const auto wz = x.w() * x.z();
-
-		const auto a = vec3<T, A>{yz, xz, xy};
-		const auto b = vec3<T, A>{wx, wy, wz};
-		const auto c = vec3<T, A>{yy, xx, xx};
-		const auto d = vec3<T, A>{zz, zz, yy};
+		const auto yxx = x.vector().yxx();
+		const auto zzy = x.vector().zzy();
+		const auto www = x.vector().www();
+		const auto xyz = x.vector().xyz();
+		const auto a = yxx * zzy;
+		const auto b = www * xyz;
+		const auto c = yxx * yxx;
+		const auto d = zzy * zzy;
 
 		const auto v0 = (a + b) * T{2};
 		m_data[1][2] = v0[0];

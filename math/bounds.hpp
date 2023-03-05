@@ -172,6 +172,19 @@ namespace sek
 		}
 		return {min, max};
 	}
+	template<typename T, typename A>
+	[[nodiscard]] inline basic_bounds<T, 3, A> operator*(const basic_mat<T, 3, 3, A> &a, const basic_bounds<T, 3, A> &b) noexcept
+	{
+		typename basic_bounds<T, 3, A>::vector_type min = {}, max = {};
+		for (std::size_t i = 0; i < 3; ++i)
+		{
+			const auto va = a[i].xyz() * b.min();
+			const auto vb = a[i].xyz() * b.max();
+			min += sek::min(va, va);
+			max += sek::max(vb, vb);
+		}
+		return {min, max};
+	}
 
 	template<typename T, std::size_t N, typename Abi>
 	[[nodiscard]] inline bool operator==(const basic_bounds<T, N, Abi> &a, const basic_bounds<T, N, Abi> &b) noexcept { return a.min() == a.max() & b.min() == b.max(); }

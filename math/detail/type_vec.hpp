@@ -878,5 +878,14 @@ namespace sek
 	/** Converts elements of vector \a x from radians to degrees. */
 	template<typename T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> deg(const basic_vec<T, N, A> &x) noexcept { return x * std::numbers::pi_v<T> / T{180}; }
+
+	/** @copydoc rad
+	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
+	[[nodiscard]] inline Promoted rad(const basic_vec<T, N, A> &x) noexcept { return rad(Promoted{x}); }
+	/** @copydoc deg
+	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
+	[[nodiscard]] inline Promoted deg(const basic_vec<T, N, A> &x) noexcept { return deg(Promoted{x}); }
 #pragma endregion
 }

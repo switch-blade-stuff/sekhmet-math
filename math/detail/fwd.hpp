@@ -19,6 +19,12 @@
 
 namespace sek
 {
+	namespace detail
+	{
+		template<typename... Ts>
+		using promote_t = std::conditional_t<std::disjunction_v<std::is_same<Ts, long double>...>, long double, double>;
+	}
+
 	namespace math_abi { using namespace dpm::simd_abi; }
 
 	/** @brief Helper type used to check if `T` is an ABI tag. */

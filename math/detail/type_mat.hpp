@@ -11,6 +11,13 @@ namespace sek
 {
 	namespace detail
 	{
+		template<typename>
+		struct is_quat : std::false_type {};
+		template<typename T, typename A>
+		struct is_quat<basic_quat<T, A>> : std::true_type {};
+		template<typename T>
+		inline constexpr auto is_quat_v = is_quat<std::remove_cvref_t<T>>::value;
+
 		template<typename T, typename MA, typename VA>
 		[[nodiscard]] inline basic_mat<T, 4, 4, MA> impl_look_at_rh(const basic_vec<T, 3, VA> &org, const basic_vec<T, 3, VA> &dir, const basic_vec<T, 3, VA> &up) noexcept;
 		template<typename T, typename MA, typename VA>
@@ -93,7 +100,7 @@ namespace sek
 		basic_mat(U &&x) noexcept requires std::is_convertible_v<U, value_type> { fill_diag(std::forward<U>(x)); }
 		/** Initializes columns of the matrix from \a args tuples. Remaining elements are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
 		template<typename... Args>
-		basic_mat(Args &&...args) noexcept requires ((detail::has_tuple_size<std::remove_cvref_t<Args>> && ...)) { fill_cols(std::forward<Args>(args)...); }
+		basic_mat(Args &&...args) noexcept requires (((!detail::is_quat_v<Args> && detail::has_tuple_size<Args>) && ...)) { fill_cols(std::forward<Args>(args)...); }
 		/** Initializes the matrix from columns of another matrix. Remaining elements are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
 		template<typename U, std::size_t OtherCols, std::size_t OtherRows, typename A>
 		basic_mat(const basic_mat<U, OtherCols, OtherRows, A> &other) noexcept requires std::is_convertible_v<U, value_type> { fill_other(other); }

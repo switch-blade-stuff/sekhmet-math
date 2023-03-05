@@ -6,9 +6,3 @@
 
 #include "type_vec.hpp"
 #include "utility.hpp"
-
-namespace sek::detail
-{
-	template<typename... Ts>
-	using promote_t = std::conditional_t<std::disjunction_v<std::is_same<Ts, long double>...>, long double, double>;
-}

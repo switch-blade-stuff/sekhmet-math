@@ -54,11 +54,20 @@ namespace sek
 	[[nodiscard]] inline T rsqrt(T x) noexcept { return detail::rsqrt(x); }
 
 	/** Converts radian angle \a x to degrees. */
-	template<typename T>
+	template<std::floating_point T>
 	[[nodiscard]] constexpr T deg(T x) noexcept { return x * T{180} / std::numbers::pi_v<T>; }
 	/** Converts degree angle \a x to radians. */
-	template<typename T>
+	template<std::floating_point T>
 	[[nodiscard]] constexpr T rad(T x) noexcept { return x * std::numbers::pi_v<T> / T{180}; }
+
+	/** @copydoc deg
+	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T, typename Promoted = detail::promote_t<T>>
+	[[nodiscard]] constexpr Promoted deg(T x) noexcept { return deg(static_cast<Promoted>(x)); }
+	/** @copydoc rad
+	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
+	template<typename T, typename Promoted = detail::promote_t<T>>
+	[[nodiscard]] constexpr Promoted rad(T x) noexcept { return rad(static_cast<Promoted>(x)); }
 
 	/** Counts leading zeros of integer \a x */
 	template<std::integral T>
