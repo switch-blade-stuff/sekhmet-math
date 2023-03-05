@@ -34,45 +34,45 @@ namespace sek
 		template<>
 		struct impl_xoroshiro<std::uint64_t, 256>
 		{
+			typedef std::uint64_t seed_type;
+			typedef seed_type state_type[4];
 			typedef std::uint64_t result_type;
-			typedef std::uint64_t state_type[4];
 
-			constexpr static state_type initial = {0x4424e023cd1d52, 0x53e25f3254fc82, 0x182982e2f107bb, 0x0ef936c5c27271};
-			constexpr static state_type jmp_short = {0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c};
-			constexpr static state_type jmp_long = {0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635};
+			constexpr static std::uint64_t initial[] = {0x4424e023cd1d52, 0x53e25f3254fc82, 0x182982e2f107bb, 0x0ef936c5c27271};
+			constexpr static std::uint64_t jmp_short[] = {0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c};
+			constexpr static std::uint64_t jmp_long[] = {0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635};
 
 			constexpr auto do_next() noexcept
 			{
 				const auto result = std::rotl(m_state[1] * 5, 7) * 9;
-				const auto t = m_state[1] << 17;
+				const auto tmp = m_state[1] << 17;
 
 				m_state[2] ^= m_state[0];
 				m_state[3] ^= m_state[1];
 				m_state[1] ^= m_state[2];
 				m_state[0] ^= m_state[3];
 
-				m_state[2] ^= t;
+				m_state[2] ^= tmp;
 				m_state[3] = std::rotl(m_state[3], 45);
 
 				return result;
 			}
-			constexpr void do_jump(const result_type (&jmp_arr)[4]) noexcept
+			constexpr void do_jump(const state_type &jmp_arr) noexcept
 			{
-				result_type temp[4] = {0};
+				result_type tmp[4] = {0};
 				for (auto jmp: jmp_arr)
 					for (auto b = 0; b < 64; b++)
 					{
 						if (jmp & static_cast<result_type>(1) << b)
 						{
-							temp[0] ^= m_state[0];
-							temp[1] ^= m_state[1];
-							temp[2] ^= m_state[2];
-							temp[3] ^= m_state[3];
+							tmp[0] ^= m_state[0];
+							tmp[1] ^= m_state[1];
+							tmp[2] ^= m_state[2];
+							tmp[3] ^= m_state[3];
 						}
 						do_next();
 					}
-
-				std::copy_n(temp, 4, m_state);
+				std::copy_n(tmp, 4, m_state);
 			}
 
 			[[nodiscard]] constexpr bool operator==(const impl_xoroshiro &) const noexcept = default;
@@ -82,40 +82,40 @@ namespace sek
 		template<>
 		struct impl_xoroshiro<std::uint64_t, 128>
 		{
+			typedef std::uint64_t seed_type;
+			typedef seed_type state_type[2];
 			typedef std::uint64_t result_type;
-			typedef std::uint64_t state_type[2];
 
-			constexpr static state_type initial = {0x4424e0232e2f107b, 0x70865936c5c27271};
-			constexpr static state_type jmp_short = {0xdf900294d8f554a5, 0x170865df4b3201fc};
-			constexpr static state_type jmp_long = {0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1};
+			constexpr static std::uint64_t initial[] = {0x4424e0232e2f107b, 0x70865936c5c27271};
+			constexpr static std::uint64_t jmp_short[] = {0xdf900294d8f554a5, 0x170865df4b3201fc};
+			constexpr static std::uint64_t jmp_long[] = {0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1};
 
 			constexpr auto do_next() noexcept
 			{
-				const auto s0 = m_state[0];
-				const auto result = std::rotl(s0 * 5, 7) * 9;
-				auto s1 = m_state[1];
+				auto si0 = std::bit_cast<std::uint64_t>(m_state[0]);
+				auto si1 = std::bit_cast<std::uint64_t>(m_state[1]);
+				const auto result = std::rotl(si0 * 5, 7) * 9;
 
-				s1 ^= s0;
-				m_state[0] = std::rotl(s0, 24) ^ s1 ^ (s1 << 16);
-				m_state[1] = std::rotl(s1, 37);
+				si1 ^= si0;
+				m_state[0] = std::rotl(si0, 24) ^ si1 ^ (si1 << 16);
+				m_state[1] = std::rotl(si1, 37);
 
-				return result;
+				return uint64_to_double(result);
 			}
-			constexpr void do_jump(const result_type (&jmp_arr)[4]) noexcept
+			constexpr void do_jump(const state_type &jmp_arr) noexcept
 			{
-				result_type temp[4] = {0};
+				std::uint64_t tmp[2] = {0};
 				for (auto jmp: jmp_arr)
 					for (auto b = 0; b < 64; b++)
 					{
-						if (jmp & static_cast<result_type>(1) << b)
+						if (std::bit_cast<std::uint64_t>(jmp) & static_cast<std::uint64_t>(1) << b)
 						{
-							temp[0] ^= m_state[0];
-							temp[1] ^= m_state[1];
+							tmp[0] ^= m_state[0];
+							tmp[1] ^= m_state[1];
 						}
 						do_next();
 					}
-
-				std::copy_n(temp, 2, m_state);
+				std::copy_n(tmp, 2, m_state);
 			}
 
 			[[nodiscard]] constexpr bool operator==(const impl_xoroshiro &) const noexcept = default;
@@ -125,8 +125,9 @@ namespace sek
 		template<>
 		struct impl_xoroshiro<double, 256>
 		{
+			typedef std::uint64_t seed_type;
+			typedef seed_type state_type[4];
 			typedef double result_type;
-			typedef std::uint64_t state_type[4];
 
 			constexpr static state_type initial = {0x4424e023cd1d52, 0x53e25f3254fc82, 0x182982e2f107bb, 0x0ef936c5c27271};
 			constexpr static state_type jmp_short = {0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c};
@@ -135,35 +136,34 @@ namespace sek
 			constexpr auto do_next() noexcept
 			{
 				const auto result = m_state[0] + m_state[3];
-				const auto temp = m_state[1] << 17;
+				const auto tmp = m_state[1] << 17;
 
 				m_state[2] ^= m_state[0];
 				m_state[3] ^= m_state[1];
 				m_state[1] ^= m_state[2];
 				m_state[0] ^= m_state[3];
 
-				m_state[2] ^= temp;
+				m_state[2] ^= tmp;
 				m_state[3] = std::rotl(m_state[3], 45);
 
 				return uint64_to_double(result);
 			}
 			constexpr void do_jump(const state_type &jmp_arr) noexcept
 			{
-				state_type temp = {0};
+				state_type tmp = {0};
 				for (auto jmp: jmp_arr)
 					for (auto b = 0; b < 64; b++)
 					{
 						if (jmp & static_cast<std::uint64_t>(1) << b)
 						{
-							temp[0] ^= m_state[0];
-							temp[1] ^= m_state[1];
-							temp[2] ^= m_state[2];
-							temp[3] ^= m_state[3];
+							tmp[0] ^= m_state[0];
+							tmp [1] ^= m_state[1];
+							tmp[2] ^= m_state[2];
+							tmp[3] ^= m_state[3];
 						}
 						do_next();
 					}
-
-				std::copy_n(temp, 4, m_state);
+				std::copy_n(tmp, 4, m_state);
 			}
 
 			[[nodiscard]] constexpr bool operator==(const impl_xoroshiro &) const noexcept = default;
@@ -173,16 +173,17 @@ namespace sek
 		template<>
 		struct impl_xoroshiro<double, 128>
 		{
+			typedef std::uint64_t seed_type;
+			typedef seed_type state_type[2];
 			typedef double result_type;
-			typedef std::uint64_t state_type[2];
 
-			constexpr static state_type initial = {0x4424e0232e2f107b, 0x70865936c5c27271};
-			constexpr static state_type jmp_short = {0xdf900294d8f554a5, 0x170865df4b3201fc};
-			constexpr static state_type jmp_long = {0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1};
+			constexpr static std::uint64_t initial[] = {0x4424e0232e2f107b, 0x70865936c5c27271};
+			constexpr static std::uint64_t jmp_short[] = {0xdf900294d8f554a5, 0x170865df4b3201fc};
+			constexpr static std::uint64_t jmp_long[] = {0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1};
 
 			constexpr auto do_next() noexcept
 			{
-				const auto s0 = m_state[0];
+				auto s0 = m_state[0];
 				auto s1 = m_state[1];
 				const auto result = s0 + s1;
 
@@ -194,19 +195,18 @@ namespace sek
 			}
 			constexpr void do_jump(const state_type &jmp_arr) noexcept
 			{
-				state_type temp = {0};
+				state_type tmp = {0};
 				for (auto jmp: jmp_arr)
 					for (auto b = 0; b < 64; b++)
 					{
 						if (jmp & static_cast<std::uint64_t>(1) << b)
 						{
-							temp[0] ^= m_state[0];
-							temp[1] ^= m_state[1];
+							tmp[0] ^= m_state[0];
+							tmp[1] ^= m_state[1];
 						}
 						do_next();
 					}
-
-				std::copy_n(temp, 2, m_state);
+				std::copy_n(tmp, 2, m_state);
 			}
 
 			[[nodiscard]] constexpr bool operator==(const impl_xoroshiro &) const noexcept = default;
@@ -217,8 +217,9 @@ namespace sek
 		template<>
 		struct impl_xoroshiro<std::uint32_t, 128>
 		{
+			typedef std::uint32_t seed_type;
+			typedef seed_type state_type[4];
 			typedef std::uint32_t result_type;
-			typedef std::uint32_t state_type[4];
 
 			constexpr static state_type initial = {0x4e2e2f7b, 0x836c6597, 0xf542d035, 0xa0e582d5};
 			constexpr static state_type jmp_short = {0x8764000b, 0xf542d2d3, 0x6fa035c3, 0x77f2db5b};
@@ -227,33 +228,32 @@ namespace sek
 			constexpr auto do_next() noexcept
 			{
 				const auto result = std::rotl(m_state[1] * 5, 7) * 9;
-				const auto temp = m_state[1] << 9;
+				const auto tmp = m_state[1] << 9;
 
 				m_state[2] ^= m_state[0];
 				m_state[3] ^= m_state[1];
 				m_state[1] ^= m_state[2];
 				m_state[0] ^= m_state[3];
 
-				m_state[2] ^= temp;
+				m_state[2] ^= tmp;
 				m_state[3] = std::rotl(m_state[3], 11);
 
 				return result;
 			}
 			constexpr void do_jump(const result_type (&jmp_arr)[4]) noexcept
 			{
-				result_type temp[4] = {0};
+				result_type tmp[4] = {0};
 				for (auto jmp: jmp_arr)
 					for (auto b = 0; b < 32; b++)
 					{
 						if (jmp & static_cast<result_type>(1) << b)
 						{
-							temp[0] ^= m_state[0];
-							temp[1] ^= m_state[1];
+							tmp[0] ^= m_state[0];
+							tmp[1] ^= m_state[1];
 						}
 						do_next();
 					}
-
-				std::copy_n(temp, 4, m_state);
+				std::copy_n(tmp, 4, m_state);
 			}
 
 			[[nodiscard]] constexpr bool operator==(const impl_xoroshiro &) const noexcept = default;
@@ -263,43 +263,43 @@ namespace sek
 		template<>
 		struct impl_xoroshiro<float, 128>
 		{
+			typedef std::uint32_t seed_type;
+			typedef seed_type state_type[4];
 			typedef float result_type;
-			typedef std::uint32_t state_type[4];
 
-			constexpr static state_type initial = {0x4e2e2f7b, 0x836c6597, 0xf542d035, 0xa0e582d5};
-			constexpr static state_type jmp_short = {0x8764000b, 0xf542d2d3, 0x6fa035c3, 0x77f2db5b};
-			constexpr static state_type jmp_long = {0xb523952e, 0x0b6f099f, 0xccf5a0ef, 0x1c580662};
+			constexpr static std::uint32_t initial[] = {0x4e2e2f7b, 0x836c6597, 0xf542d035, 0xa0e582d5};
+			constexpr static std::uint32_t jmp_short[] = {0x8764000b, 0xf542d2d3, 0x6fa035c3, 0x77f2db5b};
+			constexpr static std::uint32_t jmp_long[] = {0xb523952e, 0x0b6f099f, 0xccf5a0ef, 0x1c580662};
 
 			constexpr auto do_next() noexcept
 			{
 				const auto result = m_state[0] + m_state[3];
-				const auto temp = m_state[1] << 9;
+				const auto tmp = m_state[1] << 9;
 
 				m_state[2] ^= m_state[0];
 				m_state[3] ^= m_state[1];
 				m_state[1] ^= m_state[2];
 				m_state[0] ^= m_state[3];
 
-				m_state[2] ^= temp;
+				m_state[2] ^= tmp;
 				m_state[3] = std::rotl(m_state[3], 11);
 
 				return uint32_to_float(result);
 			}
 			constexpr void do_jump(const state_type &jmp_arr) noexcept
 			{
-				state_type temp = {0};
+				state_type tmp = {0};
 				for (auto jmp: jmp_arr)
 					for (auto b = 0; b < 32; b++)
 					{
 						if (jmp & static_cast<std::uint32_t>(1) << b)
 						{
-							temp[0] ^= m_state[0];
-							temp[1] ^= m_state[1];
+							tmp[0] ^= m_state[0];
+							tmp[1] ^= m_state[1];
 						}
 						do_next();
 					}
-
-				std::copy_n(temp, 4, m_state);
+				std::copy_n(tmp, 4, m_state);
 			}
 
 			[[nodiscard]] constexpr bool operator==(const impl_xoroshiro &) const noexcept = default;
@@ -331,6 +331,7 @@ namespace sek
 		friend inline std::basic_istream<C, Tr> &operator>>(std::basic_istream<C, Tr> &, xoroshiro<U, W> &);
 
 	public:
+		using seed_type = typename base_t::seed_type;
 		using result_type = typename base_t::result_type;
 
 		constexpr static result_type min() { return std::numeric_limits<result_type>::min(); }
@@ -339,31 +340,30 @@ namespace sek
 	public:
 		/** Initializes the generator to a default state. */
 		constexpr xoroshiro() noexcept { seed(); }
-		/** Initializes the generator from a seed. */
-		constexpr explicit xoroshiro(result_type s) noexcept { seed(s); }
+		/** Initializes the generator from a user-specified seed. */
+		constexpr explicit xoroshiro(seed_type s) noexcept { seed(s); }
 		/** Initializes the generator from a seed sequence. */
-		template<detail::seed_generator<result_type> S>
-		constexpr explicit xoroshiro(S s) noexcept { seed(s); }
+		template<detail::seed_generator<seed_type> S>
+		constexpr explicit xoroshiro(S &s) noexcept { seed(s); }
 
 		/** Seeds the generator with a default seed. */
 		constexpr void seed() noexcept { std::copy(std::begin(base_t::initial), std::end(base_t::initial), state()); }
-		/** Seeds the generator with an integer seed. */
-		constexpr void seed(result_type seed) noexcept
+		/** Seeds the generator with an user-specified seed. */
+		constexpr void seed(seed_type seed) noexcept
 		{
-			auto int_seed = std::bit_cast<std::remove_reference_t<decltype(*state())>>(seed);
 			for (auto &s: state())
 			{
-				s = int_seed;
-				detail::mix_seed_xor(int_seed);
+				s = seed;
+				detail::mix_seed_xor(seed);
 			}
 		}
 		/** Seeds the generator with a seed sequence. */
-		template<detail::seed_generator<result_type> S>
+		template<detail::seed_generator<seed_type> S>
 		constexpr void seed(S &s) noexcept { s.generate(std::begin(state()), std::end(state())); }
 
-		/** Returns the read random number. */
+		/** Returns the next random number. */
 		constexpr result_type next() noexcept { return base_t::do_next(); }
-		/** @copydoc read */
+		/** @copydoc next */
 		constexpr result_type operator()() noexcept { return next(); }
 
 		/** Advances the generator by `n`. */
