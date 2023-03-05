@@ -157,16 +157,11 @@ namespace sek
 		SEK_MAKE_VEC_GETTERS(basic_vec_mask, value_type, r, g, b, a)
 
 	private:
-		template<std::size_t... Is, typename U, std::size_t M, typename OtherAbi>
-		SEK_FORCEINLINE void fill_other(std::index_sequence<Is...>, const basic_vec_mask<U, M, OtherAbi> &other) noexcept
-		{
-			m_data = dpm::shuffle<Is...>(to_simd(other));
-		}
 		template<typename U, std::size_t M, typename OtherAbi>
 		SEK_FORCEINLINE void fill_other(const basic_vec_mask<U, M, OtherAbi> &other) noexcept
 		{
 			if constexpr (M != N)
-				fill_other(std::make_index_sequence<N>{}, other);
+				fill_tuple(std::make_index_sequence<N>{}, other);
 			else
 				m_data = to_simd(other);
 		}
@@ -484,16 +479,11 @@ namespace sek
 		SEK_MAKE_VEC_GETTERS(basic_vec, value_type, r, g, b, a)
 
 	private:
-		template<std::size_t... Is, typename U, std::size_t M, typename OtherAbi>
-		SEK_FORCEINLINE void fill_other(std::index_sequence<Is...>, const basic_vec<U, M, OtherAbi> &other) noexcept
-		{
-			m_data = dpm::shuffle<Is...>(to_simd(other));
-		}
 		template<typename U, std::size_t M, typename OtherAbi>
 		SEK_FORCEINLINE void fill_other(const basic_vec<U, M, OtherAbi> &other) noexcept
 		{
 			if constexpr (M != N)
-				fill_other(std::make_index_sequence<N>{}, other);
+				fill_tuple(std::make_index_sequence<N>{}, other);
 			else
 				m_data = to_simd(other);
 		}

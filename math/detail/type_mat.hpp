@@ -15,21 +15,6 @@ namespace sek
 		[[nodiscard]] inline basic_mat<T, 4, 4, MA> impl_look_at_rh(const basic_vec<T, 3, VA> &org, const basic_vec<T, 3, VA> &dir, const basic_vec<T, 3, VA> &up) noexcept;
 		template<typename T, typename MA, typename VA>
 		[[nodiscard]] inline basic_mat<T, 4, 4, MA> impl_look_at_lh(const basic_vec<T, 3, VA> &org, const basic_vec<T, 3, VA> &dir, const basic_vec<T, 3, VA> &up) noexcept;
-
-		template<typename>
-		struct is_mat : std::false_type {};
-		template<typename T, std::size_t C, std::size_t R, typename A>
-		struct is_mat<basic_mat<T, C, R, A>> : std::true_type {};
-
-		template<typename T, std::size_t Rows>
-		concept compatible_col = detail::has_tuple_size<T> && !is_mat<T>::value && std::tuple_size_v<T> <= Rows;
-		template<std::size_t N>
-		concept is_square = []()
-		{
-			for (std::size_t i = 0; i < N; ++i)
-				if (i * i == N) return true;
-			return false;
-		}();
 	}
 
 	/** @brief Structure used to define a mathematical matrix.
@@ -108,18 +93,10 @@ namespace sek
 		basic_mat(U &&x) noexcept requires std::is_convertible_v<U, value_type> { fill_diag(std::forward<U>(x)); }
 		/** Initializes columns of the matrix from \a args tuples. Remaining elements are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
 		template<typename... Args>
-		basic_mat(Args &&...args) noexcept requires ((detail::compatible_col<std::remove_cvref_t<Args>, NRows> && ...)) { fill_cols(std::forward<Args>(args)...); }
+		basic_mat(Args &&...args) noexcept requires ((detail::has_tuple_size<std::remove_cvref_t<Args>> && ...)) { fill_cols(std::forward<Args>(args)...); }
 		/** Initializes the matrix from columns of another matrix. Remaining elements are initialized to have ones (`1`) along the main diagonal and zeros elsewhere. */
 		template<typename U, std::size_t OtherCols, std::size_t OtherRows, typename A>
-		basic_mat(const basic_mat<U, OtherCols, OtherRows, A> &other) noexcept requires std::is_convertible_v<U, value_type>
-		{
-			for (std::size_t i = 0; i < NCols; ++i)
-			{
-				if (i < OtherCols) m_data[i] = col_type{other[i]};
-				for (std::size_t j = OtherRows; j < NRows; ++j)
-					m_data[i][j] = i == j ? T{1} : T{0};
-			}
-		}
+		basic_mat(const basic_mat<U, OtherCols, OtherRows, A> &other) noexcept requires std::is_convertible_v<U, value_type> { fill_other(other); }
 
 		/** Initializes the matrix from a quaternion rotation.
 		 * @note This constructor is defined only for 3x3 and 4x4 matrices. */
@@ -217,6 +194,41 @@ namespace sek
 #endif
 
 	private:
+		template<std::size_t I = 0, std::size_t J = 0, typename U, typename... Args>
+		inline void fill_cols(U &&value, Args &&...args) noexcept
+		{
+			using V = std::remove_cvref_t<U>;
+			constexpr auto N = detail::has_tuple_size<std::tuple_element_t<0, V>> ? std::tuple_size_v<V> : 1;
+			if constexpr (detail::has_tuple_size<std::tuple_element_t<0, V>>)
+				fill_other<I>(std::forward<U>(value));
+			else if constexpr (J < NRows)
+			{
+				using std::get;
+
+				/* Otherwise, if the row index is within the tuple argument, use tuple value. Otherwise, initialize the main diagonal. */
+				if constexpr (J < std::tuple_size_v<std::remove_cvref_t<U>>)
+					m_data[I][J] = static_cast<value_type>(get<J>(value));
+				else if constexpr (J == I)
+					m_data[I][J] = static_cast<value_type>(1);
+				fill_cols<I, J + 1>(std::forward<U>(value));
+			}
+
+			if constexpr (sizeof...(Args) != 0) /* Move onto the next column. */
+				fill_cols<I + N>(std::forward<Args>(args)...);
+			else
+				fill_diag<I + N>(1);
+		}
+		template<std::size_t I = 0, std::size_t... Is, typename U>
+		inline void fill_other(std::index_sequence<Is...>, U &&value) noexcept
+		{
+			using std::get;
+			(fill_cols<I + Is>(get<Is>(value)), ...);
+		}
+		template<std::size_t I = 0, typename U>
+		inline void fill_other(U &&value) noexcept
+		{
+			fill_other<I>(std::make_index_sequence<std::tuple_size_v<U>>{}, std::forward<U>(value));
+		}
 		template<std::size_t I = 0, typename U>
 		inline void fill_diag(U &&value) noexcept
 		{
@@ -225,25 +237,6 @@ namespace sek
 				m_data[I][I] = static_cast<value_type>(value);
 				fill_diag<I + 1>(std::forward<U>(value));
 			}
-		}
-		template<std::size_t I = 0, std::size_t J = 0, typename U, typename... Args>
-		inline void fill_cols(U &&value, Args &&...args) noexcept
-		{
-			if constexpr (J < NRows)
-			{
-				using std::get;
-
-				/* If the row index is within the tuple argument, use tuple value. Otherwise, initialize the main diagonal. */
-				if constexpr (J < std::tuple_size_v<std::remove_cvref_t<U>>)
-					m_data[I][J] = static_cast<value_type>(get<J>(value));
-				else if constexpr (J == I)
-					m_data[I][J] = static_cast<value_type>(1);
-				fill_cols<I, J + 1>(std::forward<U>(value), std::forward<Args>(args)...);
-			}
-			else if constexpr (sizeof...(Args) != 0) /* Move onto the next column. */
-				fill_cols<I + 1>(std::forward<Args>(args)...);
-			else
-				fill_diag<I + 1>(1);
 		}
 
 		col_type m_data[NCols] = {};
@@ -299,7 +292,7 @@ namespace sek
 
 	/** Alias for matrix that uses implementation-defined compatible ABI. */
 	template<typename T, std::size_t NCols, std::size_t NRows>
-	using compat_mat = basic_mat<T, NCols, NRows, math_abi::deduce_t<T, NRows, math_abi::compatible < T>>>;
+	using compat_mat = basic_mat<T, NCols, NRows, math_abi::deduce_t<T, NRows, math_abi::compatible<T>>>;
 	/** Alias for compatible-ABI matrix of 2 columns by 2 rows. */
 	template<typename T>
 	using compat_mat2x2 = compat_mat<T, 2, 2>;

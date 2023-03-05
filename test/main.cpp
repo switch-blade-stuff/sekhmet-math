@@ -53,5 +53,7 @@ inline void test_rotate() noexcept
 
 int main()
 {
+	TEST_ASSERT((sek::mat4x4<float>::identity() == sek::mat4x4<float>{sek::mat3x3<float>::identity(), sek::vec3<float>{0}}));
+
 	test_rotate();
 }
