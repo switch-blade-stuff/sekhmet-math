@@ -4,27 +4,54 @@
 
 #include <math/math.hpp>
 
+#define TEST_ASSERT(cnd) DPM_ASSERT_ALWAYS(cnd)
+
+inline void test_rotate() noexcept
+{
+	const auto invoke_test = [](sek::vec3<float> v, float angle, sek::vec3<float> axis, sek::vec3<float> expected)
+	{
+		const auto m40 = rotate(sek::mat4x4<float>::identity(), angle, axis);
+		const auto m30 = rotate(sek::mat3x3<float>::identity(), angle, axis);
+		const auto q0 = sek::quat<float>::angle_axis(angle, axis);
+
+		const auto m31 = rotate(sek::mat3x3<float>::identity(), -angle, axis);
+		const auto m41 = rotate(sek::mat4x4<float>::identity(), -angle, axis);
+		const auto q1 = sek::quat<float>::angle_axis(angle, -axis);
+
+		auto v0 = (m40 * sek::vec4<float>{v, 1}).xyz();
+		auto v1 = m30 * v;
+		auto v2 = q0 * v;
+
+		TEST_ASSERT(sek::fcmp_eq(v0, expected));
+		TEST_ASSERT(sek::fcmp_eq(v0, v1));
+		TEST_ASSERT(sek::fcmp_eq(v0, v2));
+
+		v0 = (m41 * sek::vec4<float>{v, 1}).xyz();
+		v1 = m31 * v;
+		v2 = q1 * v;
+
+		TEST_ASSERT(sek::fcmp_eq(v0, -expected));
+		TEST_ASSERT(sek::fcmp_eq(v0, v1));
+		TEST_ASSERT(sek::fcmp_eq(v0, v2));
+	};
+
+	invoke_test(sek::vec3<float>::left(), sek::rad(90.0f), sek::vec3<float>::up(), sek::vec3<float>::backward());
+	invoke_test(sek::vec3<float>::left(), sek::rad(-90.0f), sek::vec3<float>::up(), sek::vec3<float>::forward());
+	invoke_test(sek::vec3<float>::right(), sek::rad(90.0f), sek::vec3<float>::up(), sek::vec3<float>::forward());
+	invoke_test(sek::vec3<float>::right(), sek::rad(-90.0f), sek::vec3<float>::up(), sek::vec3<float>::backward());
+
+	invoke_test(sek::vec3<float>::up(), sek::rad(90.0f), sek::vec3<float>::left(), sek::vec3<float>::forward());
+	invoke_test(sek::vec3<float>::up(), sek::rad(-90.0f), sek::vec3<float>::left(), sek::vec3<float>::backward());
+	invoke_test(sek::vec3<float>::down(), sek::rad(90.0f), sek::vec3<float>::left(), sek::vec3<float>::backward());
+	invoke_test(sek::vec3<float>::down(), sek::rad(-90.0f), sek::vec3<float>::left(), sek::vec3<float>::forward());
+
+	invoke_test(sek::vec3<float>::up(), sek::rad(90.0f), sek::vec3<float>::forward(), sek::vec3<float>::right());
+	invoke_test(sek::vec3<float>::up(), sek::rad(-90.0f), sek::vec3<float>::forward(), sek::vec3<float>::left());
+	invoke_test(sek::vec3<float>::down(), sek::rad(90.0f), sek::vec3<float>::forward(), sek::vec3<float>::left());
+	invoke_test(sek::vec3<float>::down(), sek::rad(-90.0f), sek::vec3<float>::forward(), sek::vec3<float>::right());
+}
+
 int main()
 {
-	/* | 1 | 2 | 4 |
-	 * | 0 | 1 | 2 |
-	 * | 0 | 0 | 1 |
-	 * | 0 | 0 | 0 | */
-	const auto c0 = sek::vec1<float>{1};
-	const auto c1 = sek::vec1<float>{2};
-	const auto c2 = sek::vec2<float>{4, 2};
-
-	const auto m0 = sek::mat3x4<float>{c0, c1, sek::vec3<float>{c2, 1}};
-	const auto m1 = sek::mat3x4<float>{c0, c1, c2};
-
-	const auto [m0c0, m0c1, m0c2] = m0;
-	const auto [m1c0, m1c1, m1c2] = m1;
-
-	return m0 == m1 && m0c0 == m1c0 && m0c1 == m1c1 && m0c2 == m1c2 &&
-	       m0c0 == sek::vec4<float>{1, 0, 0, 0} &&
-	       m0c1 == sek::vec4<float>{2, 1, 0, 0} &&
-	       m0c2 == sek::vec4<float>{4, 2, 1, 0} &&
-	       m1c0 == sek::vec4<float>{1, 0, 0, 0} &&
-	       m1c1 == sek::vec4<float>{2, 1, 0, 0} &&
-	       m1c2 == sek::vec4<float>{4, 2, 1, 0};
+	test_rotate();
 }

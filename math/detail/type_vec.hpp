@@ -881,5 +881,12 @@ namespace sek
 	{
 		return {dpm::clamp(to_simd(x), to_simd(min), to_simd(max))};
 	}
+
+	/** Converts elements of vector \a x from degrees to radians. */
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline basic_vec<T, N, A> rad(const basic_vec<T, N, A> &x) noexcept { return x * T{180} / std::numbers::pi_v<T>; }
+	/** Converts elements of vector \a x from radians to degrees. */
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline basic_vec<T, N, A> deg(const basic_vec<T, N, A> &x) noexcept { return x * std::numbers::pi_v<T> / T{180}; }
 #pragma endregion
 }

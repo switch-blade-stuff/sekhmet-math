@@ -145,4 +145,57 @@ namespace sek
 		result[3] = fmadd(s0, {m[3][0]}, fmadd(s1, {m[3][1]}, fmadd(s2, {m[3][2]}, s3 * m[3][3])));
 		return result;
 	}
+
+	/** Rotates a 3x3 transform matrix \a m about normalized axis \a v using angle \a a.
+	 * @param m Transform matrix to rotate.
+	 * @param a Rotation angle.
+	 * @param v Rotation axis vector.
+	 * @return 3x3 transform matrix with rotation applied.
+	 * @note Rotation axis must be normalized. */
+	template<typename T, typename A>
+	[[nodiscard]] inline basic_mat<T, 3, 3, A> rotate(const basic_mat<T, 3, 3, A> &m, T a, const basic_vec<T, 3, A> &v) noexcept
+	{
+		const auto [a_sin, a_cos] = detail::sincos(a);
+		const auto temp = v * (T{1} - a_cos);
+
+		const auto a0 = basic_vec<T, 3, A>{a_cos, a_sin, -a_sin};
+		const auto a1 = basic_vec<T, 3, A>{-a_sin, a_cos, a_sin};
+		const auto a2 = basic_vec<T, 3, A>{a_sin, -a_sin, a_cos};
+
+		/* {1, axis[2], axis[1]} */
+		auto b0 = shuffle<0, 2, 1>(v);
+		b0[0] = static_cast<T>(1);
+		/* {axis[2], 1, axis[0]} */
+		auto b1 = shuffle<2, 1, 0>(v);
+		b1[1] = static_cast<T>(1);
+		/* {axis[1], axis[0], 1} */
+		auto b2 = shuffle<1, 0, 2>(v);
+		b2[2] = static_cast<T>(1);
+
+		/* Build a temporary rotation-only matrix. */
+		basic_mat<T, 3, 3, A> rot;
+		rot[0] = fmadd(v, {temp[0]}, a0 * b0);
+		rot[1] = fmadd(v, {temp[1]}, a1 * b1);
+		rot[2] = fmadd(v, {temp[2]}, a2 * b2);
+
+		/* Apply the rotation matrix to m. */
+		basic_mat<T, 3, 3, A> result;
+		result[0] = fmadd(m[0], {rot[0][0]}, fmadd(m[1], {rot[0][1]}, m[2] * rot[0][2]));
+		result[1] = fmadd(m[0], {rot[1][0]}, fmadd(m[1], {rot[1][1]}, m[2] * rot[1][2]));
+		result[2] = fmadd(m[0], {rot[2][0]}, fmadd(m[1], {rot[2][1]}, m[2] * rot[2][2]));
+		return result;
+	}
+	/** Scales a 3x3 transform matrix \a m using scale vector \a v.
+	 * @param m Transform matrix to scale.
+	 * @param v Scale vector.
+	 * @return 3x3 transform matrix with scale applied. */
+	template<typename T, typename A>
+	[[nodiscard]] inline basic_mat<T, 3, 3, A> scale(const basic_mat<T, 3, 3, A> &m, const basic_vec<T, 3, A> &v) noexcept
+	{
+		basic_mat<T, 3, 3, A> result;
+		result[0] = m[0] * v[0];
+		result[1] = m[1] * v[1];
+		result[2] = m[2] * v[2];
+		return result;
+	}
 }
