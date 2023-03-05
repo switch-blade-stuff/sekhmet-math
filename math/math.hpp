@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <math/scalar.hpp>
-#include <math/vector.hpp>
-#include <math/matrix.hpp>
-#include <math/quaternion.hpp>
-#include <math/bounds.hpp>
+#include "math/scalar.hpp"
+#include "math/vector.hpp"
+#include "math/matrix.hpp"
+#include "math/quaternion.hpp"
+#include "math/bounds.hpp"
+#include "math/random.hpp"

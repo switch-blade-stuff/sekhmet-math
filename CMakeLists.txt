@@ -7,6 +7,7 @@ if (${SEK_FORCE_LEFT_HANDED})
     add_compile_definitions(SEK_FORCE_LEFT_HANDED)
 endif ()
 
+option(BUILD_SHARED_LIBS "Build sekhmet-math as a shared library" OFF)
 
 # Add project targets
 set(SEK_MATH_PROJECT ${PROJECT_NAME})
@@ -25,6 +26,15 @@ endif ()
 # Include library source subdirectory
 set(SEK_MATH_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/math)
 include(${SEK_MATH_SOURCE_DIR}/CMakeLists.txt)
+
+# Set symbol visibility
+set_target_properties(${SEK_MATH_PROJECT} PROPERTIES C_VISIBILITY_PRESET hidden)
+set_target_properties(${SEK_MATH_PROJECT} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(${SEK_MATH_PROJECT} PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
+
+# Set shared library definitions
+set_target_properties(${SEK_MATH_PROJECT} PROPERTIES DEFINE_SYMBOL "SEK_MATH_EXPORT")
+target_compile_definitions(${SEK_MATH_PROJECT} PUBLIC $<IF:$<STREQUAL:$<TARGET_PROPERTY:${SEK_MATH_PROJECT},TYPE>,SHARED_LIBRARY>,"SEK_MATH_LIB_SHARED","SEK_MATH_LIB_STATIC">)
 
 # Add DPM subproject & link it as public dependency
 set(DPM_HANDLE_ERRORS ON CACHE BOOL "Enable error handling for vectorized math functions")

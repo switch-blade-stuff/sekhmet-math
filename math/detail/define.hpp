@@ -5,6 +5,7 @@
 #pragma once
 
 #include <dpm/debug.hpp>
+#include "api.hpp"
 
 #ifndef SEK_ASSERT_MSG
 #define SEK_ASSERT_MSG(cnd, msg) DPM_ASSERT_MSG(cnd, msg)
@@ -31,3 +32,26 @@
 #define SEK_CXX_VERSION __cplusplus
 #endif
 #endif
+
+#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+#include <unistd.h>
+#ifdef _POSIX_VERSION
+#define SEK_OS_POSIX
+#define
+#endif
+#endif
+
+#ifdef SEK_OS_POSIX
+#include <sys/types.h>
+#elif SIZE_MAX >= UINT64_MAX
+typedef std::int64_t ssize_t;
+#elif SIZE_MAX >= UINT32_MAX
+typedef std::int32_t ssize_t;
+#elif SIZE_MAX >= UINT16_MAX
+typedef std::int16_t ssize_t;
+#endif
+
+namespace sek
+{
+	using ssize_t = ::ssize_t;
+}

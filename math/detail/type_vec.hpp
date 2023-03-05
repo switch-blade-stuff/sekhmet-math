@@ -170,7 +170,7 @@ namespace sek
 			else
 				m_data = to_simd(other);
 		}
-		template<std::size_t J, std::size_t I, std::size_t... Is, typename U, typename... Us>
+		template<std::size_t J, std::size_t I, std::size_t... Is, typename U>
 		SEK_FORCEINLINE void fill_tuple(std::index_sequence<I, Is...>, U &&x) noexcept
 		{
 			using std::get;
@@ -497,7 +497,7 @@ namespace sek
 			else
 				m_data = to_simd(other);
 		}
-		template<std::size_t J, std::size_t I, std::size_t... Is, typename U, typename... Us>
+		template<std::size_t J, std::size_t I, std::size_t... Is, typename U>
 		SEK_FORCEINLINE void fill_tuple(std::index_sequence<I, Is...>, U &&x) noexcept
 		{
 			using std::get;

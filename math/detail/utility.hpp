@@ -116,7 +116,26 @@ namespace sek::detail
 	template<std::integral T>
 	[[nodiscard]] inline T clz(T x) noexcept
 	{
-#if defined(__has_builtin) && __has_builtin(__builtin_clz)
+#if defined(_MSC_VER)
+		[[maybe_unused]] unsigned long idx;
+		if constexpr(sizeof(T) <= sizeof(unsigned long))
+		{
+			const auto off = static_cast<T>(std::numeric_limits<unsigned int>::digits - std::numeric_limits<T>::digits);
+			if (!_BitScanReverse(&idx, static_cast<unsigned long>(x)))
+				return std::numeric_limits<T>::digits;
+			else
+				return static_cast<T>(idx) - off;
+		}
+#if defined(_WIN64)
+		else if constexpr(sizeof(T) == sizeof(__int64))
+		{
+			if (!_BitScanReverse64(&idx, static_cast<__int64>(x)))
+				return std::numeric_limits<T>::digits;
+			else
+				return static_cast<T>(idx);
+		}
+#endif
+#elif defined(__has_builtin) && __has_builtin(__builtin_clz)
 		if (x == 0) return std::numeric_limits<T>::digits;
 		if constexpr(sizeof(T) <= sizeof(unsigned int))
 		{
@@ -127,38 +146,13 @@ namespace sek::detail
 			return static_cast<T>(__builtin_clzl(static_cast<unsigned long>(x)));
 		else if constexpr(sizeof(T) == sizeof(unsigned long long))
 			return static_cast<T>(__builtin_clzll(static_cast<unsigned long long>(x)));
-#elif defined(_MSC_VER)
-		[[maybe_unused]] unsigned long idx;
-		if constexpr(sizeof(T) <= sizeof(unsigned long))
-		{
-			const auto off = static_cast<T>(std::numeric_limits<unsigned int>::digits - std::numeric_limits<T>::digits);
-			if (!_BitScanReverse(&idx, static_cast<unsigned long>(x)))
-				return std::numeric_limits<T>::digits;
-			else
-				return static_cast<T>(idx) - off;
-		}
-		else if constexpr(sizeof(T) == sizeof(__int64))
-		{
-			if (!_BitScanReverse64(&idx, static_cast<__int64>(x)))
-				return std::numeric_limits<T>::digits;
-			else
-				return static_cast<T>(idx);
-		}
 #endif
 		return slow_clz(x);
 	}
 	template<std::integral T>
 	[[nodiscard]] inline T ctz(T x) noexcept
 	{
-#if defined(__has_builtin) && __has_builtin(__builtin_clz)
-		if (x == 0) return 0;
-		if constexpr(sizeof(T) <= sizeof(unsigned int))
-			return static_cast<T>(__builtin_ctz(static_cast<unsigned int>(x)));
-		else if constexpr(sizeof(T) == sizeof(unsigned long))
-			return static_cast<T>(__builtin_ctzl(static_cast<unsigned long>(x)));
-		else if constexpr(sizeof(T) == sizeof(unsigned long long))
-			return static_cast<T>(__builtin_ctzll(static_cast<unsigned long long>(x)));
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 		[[maybe_unused]] unsigned long idx;
 		if constexpr(sizeof(T) <= sizeof(unsigned long))
 		{
@@ -167,6 +161,7 @@ namespace sek::detail
 			else
 				return static_cast<T>(idx);
 		}
+#if defined(_WIN64)
 		else if constexpr(sizeof(T) == sizeof(__int64))
 		{
 			if (!_BitScanForward64(&idx, static_cast<__int64>(x)))
@@ -174,6 +169,15 @@ namespace sek::detail
 			else
 				return static_cast<T>(idx);
 		}
+#endif
+#elif defined(__has_builtin) && __has_builtin(__builtin_clz)
+		if (x == 0) return 0;
+		if constexpr(sizeof(T) <= sizeof(unsigned int))
+			return static_cast<T>(__builtin_ctz(static_cast<unsigned int>(x)));
+		else if constexpr(sizeof(T) == sizeof(unsigned long))
+			return static_cast<T>(__builtin_ctzl(static_cast<unsigned long>(x)));
+		else if constexpr(sizeof(T) == sizeof(unsigned long long))
+			return static_cast<T>(__builtin_ctzll(static_cast<unsigned long long>(x)));
 #endif
 		return slow_clz(x);
 	}
