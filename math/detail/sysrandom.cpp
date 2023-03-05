@@ -29,7 +29,7 @@ sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept
 	if (BCryptOpenAlgorithmProvider(&rng_alg, BCRYPT_RNG_ALGORITHM, nullptr, 0) != STATUS_SUCCESS)
 		[[unlikely]] return -1;
 
-	auto result = static_cast<sek::ssize_t>(n);
+	auto result = static_cast<ssize_t>(n);
 	if (BCryptGenRandom(rng_alg, static_cast<PUCHAR>(dst), n, 0) != STATUS_SUCCESS)
 		[[unlikely]] result = -1;
 	if (BCryptCloseAlgorithmProvider(rng_alg, 0) != STATUS_SUCCESS)
@@ -56,10 +56,7 @@ sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept { return getent
 sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept
 {
 	if (auto urandom = fopen("/dev/urandom", "rb"); urandom) [[likely]]
-	{
-		if (fread(dst, n, 1, urandom) == n) [[likely]]
-			return static_cast<sek::ssize_t>(n);
-	}
+		return static_cast<ssize_t>(fread(dst, n, 1, urandom));
 	return -1;
 }
 
