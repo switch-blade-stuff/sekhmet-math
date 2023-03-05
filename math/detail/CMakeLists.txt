@@ -20,7 +20,8 @@ target_sources(${SEK_MATH_PROJECT} INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/fcmp_vec.hpp
         ${CMAKE_CURRENT_LIST_DIR}/fcmp_mat.hpp
         ${CMAKE_CURRENT_LIST_DIR}/inverse.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/trans.hpp)
+        ${CMAKE_CURRENT_LIST_DIR}/trans.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/xoroshiro.hpp)
 
 target_sources(${SEK_MATH_PROJECT} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/sysrandom.hpp)

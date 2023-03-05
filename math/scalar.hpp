@@ -78,7 +78,7 @@ namespace sek
 		else
 			return detail::ctz(x);
 	}
-	/** Calculates base-2 logarithm of integer \a x. If \a x is `0` returns `-1`. */
+	/** Calculates base_t-2 logarithm of integer \a x. If \a x is `0` returns `-1`. */
 	template<std::integral T>
 	[[nodiscard]] constexpr T ilog2(T x) noexcept { return std::numeric_limits<T>::digits - clz(x) - 1; }
 }

@@ -17,16 +17,16 @@ namespace sek
 	/** Raises *e* (Euler's number) to the power specified by elements of vector \a x, and subtracts `1`. */
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> expm1(const basic_vec<T, N, A> &x) noexcept { return {dpm::expm1(to_simd(x))}; }
-	/** Calculates natural (base *e*) logarithm of elements in vector \a x. */
+	/** Calculates natural (base_t *e*) logarithm of elements in vector \a x. */
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> log(const basic_vec<T, N, A> &x) noexcept { return {dpm::log(to_simd(x))}; }
-	/** Calculates natural (base *e*) logarithm of elements in vector \a x plus `1`. */
+	/** Calculates natural (base_t *e*) logarithm of elements in vector \a x plus `1`. */
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> log1p(const basic_vec<T, N, A> &x) noexcept { return {dpm::log1p(to_simd(x))}; }
-	/** Calculates common (base 10) logarithm of elements in vector \a x. */
+	/** Calculates common (base_t 10) logarithm of elements in vector \a x. */
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> log10(const basic_vec<T, N, A> &x) noexcept { return {dpm::log10(to_simd(x))}; }
-	/** Calculates binary (base 2) logarithm of elements in vector \a x. */
+	/** Calculates binary (base_t 2) logarithm of elements in vector \a x. */
 	template<std::floating_point T, std::size_t N, typename A>
 	[[nodiscard]] inline basic_vec<T, N, A> log2(const basic_vec<T, N, A> &x) noexcept { return {dpm::log2(to_simd(x))}; }
 

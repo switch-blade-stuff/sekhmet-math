@@ -4,4 +4,5 @@
 
 #pragma once
 
-#include "detail/sysrandom.hpp
+#include "detail/sysrandom.hpp"
+#include "detail/xoroshiro.hpp"

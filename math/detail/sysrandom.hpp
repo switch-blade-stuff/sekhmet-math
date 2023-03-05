@@ -21,4 +21,4 @@ namespace sek::sys
 	SEK_MATH_PUBLIC ssize_t random(void *dst, std::size_t n) noexcept;
 
 	SEK_FORCEINLINE ssize_t random(std::span<std::byte> dst, std::size_t n) noexcept { return random(dst.data(), std::min(dst.size(), n)); }
-}     // namespace sek
+}
