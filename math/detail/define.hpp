@@ -37,7 +37,6 @@
 #include <unistd.h>
 #ifdef _POSIX_VERSION
 #define SEK_OS_POSIX
-#define
 #endif
 #endif
 

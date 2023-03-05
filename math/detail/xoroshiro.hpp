@@ -17,8 +17,7 @@ namespace sek
 	namespace detail
 	{
 		template<typename T, typename I>
-		concept seed_generator =
-		requires(const I (&state)[4], T &gen)
+		concept seed_generator = requires(const I (&state)[4], T &gen)
 		{
 			typename T::result_type;
 			requires std::same_as<typename T::result_type, I>;

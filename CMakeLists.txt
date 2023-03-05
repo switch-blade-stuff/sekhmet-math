@@ -34,7 +34,7 @@ set_target_properties(${SEK_MATH_PROJECT} PROPERTIES VISIBILITY_INLINES_HIDDEN O
 
 # Set shared library definitions
 set_target_properties(${SEK_MATH_PROJECT} PROPERTIES DEFINE_SYMBOL "SEK_MATH_EXPORT")
-target_compile_definitions(${SEK_MATH_PROJECT} PUBLIC $<IF:$<STREQUAL:$<TARGET_PROPERTY:${SEK_MATH_PROJECT},TYPE>,SHARED_LIBRARY>,"SEK_MATH_LIB_SHARED","SEK_MATH_LIB_STATIC">)
+target_compile_definitions(${SEK_MATH_PROJECT} PUBLIC $<IF:$<STREQUAL:$<TARGET_PROPERTY:${SEK_MATH_PROJECT},TYPE>,SHARED_LIBRARY>,SEK_MATH_LIB_SHARED,SEK_MATH_LIB_STATIC>)
 
 # Add DPM subproject & link it as public dependency
 set(DPM_HANDLE_ERRORS ON CACHE BOOL "Enable error handling for vectorized math functions")
