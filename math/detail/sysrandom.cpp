@@ -2,16 +2,14 @@
  * Created by switchblade on 2023-03-05.
  */
 
-#include "sysrandom.hpp"
-
-#ifdef __linux__
-
+#if defined(__linux__) || defined(__OpenBSD__)
+#define _DEFAULT_SOURCE
 #include <linux/version.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+#endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
-#define USE_GETRANDOM
-#endif
-#endif
+#include "sysrandom.hpp"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
@@ -37,19 +35,17 @@ sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept
 	return result;
 }
 
-#elif defined(USE_GETRANDOM)
-
-#include <sys/syscall.h>
+#elif defined(__linux__) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
 
 sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept { return syscall(SYS_getrandom, dst, n, 0); }
 
-#elif defined(__OpenBSD__)
-
-#include <unistd.h>
+#elif defined(__linux__) || defined(__OpenBSD__)
 
 sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept { return getentropy(dst, n); }
 
 #elif defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+
+sek::ssize_t sek::sys::random(void *dst, std::size_t n) noexcept { return getentropy(dst, n); }
 
 #include <cstdio>
 
