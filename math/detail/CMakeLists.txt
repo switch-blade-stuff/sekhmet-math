@@ -1,5 +1,5 @@
 
-target_sources(${SEK_MATH_PROJECT} INTERFACE
+list(APPEND SEK_MATH_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/define.hpp
         ${CMAKE_CURRENT_LIST_DIR}/fwd.hpp
         ${CMAKE_CURRENT_LIST_DIR}/shuffle.hpp
@@ -23,7 +23,7 @@ target_sources(${SEK_MATH_PROJECT} INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/trans.hpp
         ${CMAKE_CURRENT_LIST_DIR}/xoroshiro.hpp)
 
-target_sources(${SEK_MATH_PROJECT} PUBLIC
+list(APPEND SEK_MATH_PUBLIC_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sysrandom.hpp)
-target_sources(${SEK_MATH_PROJECT} PRIVATE
+list(APPEND SEK_MATH_PRIVATE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sysrandom.cpp)

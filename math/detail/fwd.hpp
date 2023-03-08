@@ -25,21 +25,24 @@ namespace sek
 		using promote_t = std::conditional_t<std::disjunction_v<std::is_same<Ts, long double>...>, long double, double>;
 	}
 
-	namespace math_abi { using namespace dpm::simd_abi; }
+	namespace math_abi
+	{
+		using namespace dpm::simd_abi;
 
-	/** @brief Helper type used to check if `T` is an ABI tag. */
-	template<typename T>
-	using is_abi_tag = dpm::is_abi_tag<T>;
-	/** @brief Alias for `is_abi_tag<T>::value`. */
-	template<typename T>
-	inline constexpr auto is_abi_tag_v = is_abi_tag<T>::value;
+		/** @brief Helper type used to check if `T` is an ABI tag. */
+		template<typename T>
+		using is_abi_tag = dpm::is_abi_tag<T>;
+		/** @brief Alias for `is_abi_tag<T>::value`. */
+		template<typename T>
+		inline constexpr auto is_abi_tag_v = is_abi_tag<T>::value;
 
-	/** @brief Helper type used to obtain vector size of the ABI tag. */
-	template<typename T, typename Abi>
-	using abi_tag_size = dpm::simd_size<T, Abi>;
-	/** @brief Alias for `abi_tag_size<T, Abi>::value`. */
-	template<typename T, typename Abi>
-	inline constexpr auto abi_tag_size_v = abi_tag_size<T, Abi>::value;
+		/** @brief Helper type used to obtain vector size of the ABI tag. */
+		template<typename T, typename Abi>
+		using abi_tag_size = dpm::simd_size<T, Abi>;
+		/** @brief Alias for `abi_tag_size<T, Abi>::value`. */
+		template<typename T, typename Abi>
+		inline constexpr auto abi_tag_size_v = abi_tag_size<T, Abi>::value;
+	}
 
 	template<typename T, std::size_t N, typename Abi>
 	class basic_vec_mask;
