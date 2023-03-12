@@ -7,7 +7,6 @@ if (${SEK_FORCE_LEFT_HANDED})
     add_compile_definitions(SEK_FORCE_LEFT_HANDED)
 endif ()
 
-option(SEK_MATH_BUILD_OBJECT "Toggles build of object library target" ON)
 option(SEK_MATH_BUILD_SHARED "Toggles build of shared library target" ON)
 option(SEK_MATH_BUILD_STATIC "Toggles build of static library target" ON)
 
@@ -20,103 +19,49 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE STRING "")
 set(SEK_MATH_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/math)
 include(${SEK_MATH_SOURCE_DIR}/CMakeLists.txt)
 
-# Add project targets & include directories
-if (MSVC)
-    set(SEK_MATH_COMPILE_OPTIONS /W3 /WX)
-else ()
-    set(SEK_MATH_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -Werror -Wno-unknown-pragmas -Wno-ignored-attributes)
-endif ()
-
-if (SEK_MATH_BUILD_OBJECT)
-    add_library(${PROJECT_NAME}-object OBJECT)
-    target_sources(${PROJECT_NAME}-object PUBLIC ${SEK_MATH_PUBLIC_SOURCES})
-    target_sources(${PROJECT_NAME}-object PRIVATE ${SEK_MATH_PRIVATE_SOURCES})
-    target_sources(${PROJECT_NAME}-object INTERFACE ${SEK_MATH_INTERFACE_SOURCES})
-    target_include_directories(${PROJECT_NAME}-object PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-    set_target_properties(${PROJECT_NAME}-object PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
-
-    # Set C++ version
-    target_compile_features(${PROJECT_NAME}-object PUBLIC cxx_std_20)
-
-    # Set symbol visibility
-    set_target_properties(${PROJECT_NAME}-object PROPERTIES C_VISIBILITY_PRESET hidden)
-    set_target_properties(${PROJECT_NAME}-object PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(${PROJECT_NAME}-object PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
-
-    # Set shared library definitions
-    set_target_properties(${PROJECT_NAME}-object PROPERTIES DEFINE_SYMBOL "SEK_MATH_EXPORT")
-    target_compile_definitions(${PROJECT_NAME}-object PUBLIC SEK_MATH_LIB_SHARED)
-
-    # Enable max error reporting
-    target_compile_options(${PROJECT_NAME}-object PRIVATE ${SEK_MATH_COMPILE_OPTIONS})
-endif ()
-if (SEK_MATH_BUILD_SHARED)
-
-    add_library(${PROJECT_NAME}-shared SHARED)
-    target_sources(${PROJECT_NAME}-shared PUBLIC ${SEK_MATH_PUBLIC_SOURCES})
-    target_sources(${PROJECT_NAME}-shared PRIVATE ${SEK_MATH_PRIVATE_SOURCES})
-    target_sources(${PROJECT_NAME}-shared INTERFACE ${SEK_MATH_INTERFACE_SOURCES})
-    target_include_directories(${PROJECT_NAME}-shared PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-    set_target_properties(${PROJECT_NAME}-shared PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
-
-    # Set C++ version
-    target_compile_features(${PROJECT_NAME}-shared PUBLIC cxx_std_20)
-
-    # Set symbol visibility
-    set_target_properties(${PROJECT_NAME}-shared PROPERTIES C_VISIBILITY_PRESET hidden)
-    set_target_properties(${PROJECT_NAME}-shared PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(${PROJECT_NAME}-shared PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
-
-    # Set shared library definitions
-    set_target_properties(${PROJECT_NAME}-shared PROPERTIES DEFINE_SYMBOL "SEK_MATH_EXPORT")
-    target_compile_definitions(${PROJECT_NAME}-shared PUBLIC SEK_MATH_LIB_SHARED)
-
-    # Enable max error reporting
-    target_compile_options(${PROJECT_NAME}-shared PRIVATE ${SEK_MATH_COMPILE_OPTIONS})
-endif ()
-if (SEK_MATH_BUILD_STATIC)
-    add_library(${PROJECT_NAME}-static STATIC)
-    target_sources(${PROJECT_NAME}-static PUBLIC ${SEK_MATH_PUBLIC_SOURCES})
-    target_sources(${PROJECT_NAME}-static PRIVATE ${SEK_MATH_PRIVATE_SOURCES})
-    target_sources(${PROJECT_NAME}-static INTERFACE ${SEK_MATH_INTERFACE_SOURCES})
-    target_include_directories(${PROJECT_NAME}-static PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-    set_target_properties(${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
-
-    # Set C++ version
-    target_compile_features(${PROJECT_NAME}-static PUBLIC cxx_std_20)
-
-    # Set symbol visibility
-    set_target_properties(${PROJECT_NAME}-static PROPERTIES C_VISIBILITY_PRESET hidden)
-    set_target_properties(${PROJECT_NAME}-static PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(${PROJECT_NAME}-static PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
-
-    # Set shared library definitions
-    set_target_properties(${PROJECT_NAME}-static PROPERTIES DEFINE_SYMBOL "SEK_MATH_EXPORT")
-    target_compile_definitions(${PROJECT_NAME}-static PUBLIC SEK_MATH_LIB_STATIC)
-
-    # Enable max error reporting
-    target_compile_options(${PROJECT_NAME}-static PRIVATE ${SEK_MATH_COMPILE_OPTIONS})
-endif ()
-
 # Add DPM subproject
+set(DPM_BUILD_SHARED ${SEK_MATH_BUILD_SHARED} CACHE BOOL "")
+set(DPM_BUILD_STATIC ${SEK_MATH_BUILD_STATIC} CACHE BOOL "")
 set(DPM_HANDLE_ERRORS ON CACHE BOOL "Enable error handling for vectorized math functions")
 set(DPM_INLINE_EXTENSIONS ON CACHE BOOL "Bring DPM math extensions into top-level namespace")
-set(DPM_BUILD_SHARED OFF CACHE BOOL "Disable DPM shared library target")
-set(DPM_BUILD_STATIC OFF CACHE BOOL "Disable DPM static library target")
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/external/dpm)
 
-# Link DPM as public dependency
-function(sek_target_link_objects TARGET MODE OBJ_LIBRARY)
-    target_link_libraries(${TARGET} ${MODE} ${OBJ_LIBRARY} $<TARGET_OBJECTS:${OBJ_LIBRARY}>)
+# Add shared & static library targets
+function(sek_configure_target NAME TYPE)
+    add_library(${NAME} ${TYPE})
+    target_sources(${NAME} PUBLIC ${SEK_MATH_PUBLIC_SOURCES})
+    target_sources(${NAME} PRIVATE ${SEK_MATH_PRIVATE_SOURCES})
+    target_sources(${NAME} INTERFACE ${SEK_MATH_INTERFACE_SOURCES})
+    target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+    set_target_properties(${NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
+
+    # Set C++ version
+    target_compile_features(${NAME} PUBLIC cxx_std_20)
+
+    # Set symbol visibility
+    set_target_properties(${NAME} PROPERTIES C_VISIBILITY_PRESET hidden)
+    set_target_properties(${NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${NAME} PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
+
+    # Set shared library definitions
+    set_target_properties(${NAME} PROPERTIES DEFINE_SYMBOL "SEK_MATH_EXPORT")
+
+    # Enable max error reporting
+    if (MSVC)
+        target_compile_options(${NAME} PRIVATE /W3 /WX)
+    else ()
+        target_compile_options(${NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-unknown-pragmas -Wno-ignored-attributes)
+    endif ()
 endfunction()
-if (SEK_MATH_BUILD_OBJECT)
-    sek_target_link_objects(${PROJECT_NAME}-object PUBLIC dpm-object)
-endif ()
 if (SEK_MATH_BUILD_SHARED)
-    sek_target_link_objects(${PROJECT_NAME}-shared PUBLIC dpm-object)
+    sek_configure_target(${PROJECT_NAME}-shared SHARED)
+    target_link_libraries(${PROJECT_NAME}-shared PUBLIC dpm-shared)
+    target_compile_definitions(${PROJECT_NAME}-shared PUBLIC SEK_MATH_LIB_SHARED)
 endif ()
 if (SEK_MATH_BUILD_STATIC)
-    sek_target_link_objects(${PROJECT_NAME}-static PUBLIC dpm-object)
+    sek_configure_target(${PROJECT_NAME}-static STATIC)
+    target_link_libraries(${PROJECT_NAME}-static PUBLIC dpm-static)
+    set_target_properties(${PROJECT_NAME}-static PROPERTIES PREFIX "lib")
 endif ()
 
 # Add unit tests

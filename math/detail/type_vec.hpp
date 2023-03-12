@@ -36,7 +36,7 @@ namespace sek
 		struct is_compatible_arg<T, U> : is_compatible_tuple<T, U, std::make_index_sequence<std::tuple_size_v<U>>> {};
 
 		template<typename T, std::size_t N, typename... Ts>
-		concept compatible_args = std::conjunction_v<is_compatible_arg<T, std::remove_cvref_t<Ts>>...> && (arg_extent_v<Ts> + ...) == N;
+		concept compatible_args = std::conjunction_v<is_compatible_arg<T, std::remove_cvref_t<Ts>>...> && (0 + ... + arg_extent_v<Ts>) == N;
 	}
 
 	/** @brief Structure used to define a boolean mask for a mathematical vector.
@@ -161,7 +161,7 @@ namespace sek
 		SEK_FORCEINLINE void fill_other(const basic_vec_mask<U, M, OtherAbi> &other) noexcept
 		{
 			if constexpr (M != N)
-				fill_tuple(std::make_index_sequence<N>{}, other);
+				fill_tuple(std::make_index_sequence<M>{}, other);
 			else
 				m_data = to_simd(other);
 		}
@@ -170,7 +170,7 @@ namespace sek
 		{
 			using std::get;
 			operator[](J) = static_cast<value_type>(get<I>(x));
-			if constexpr (sizeof...(Is) != 0) fill_tuple < J + 1 > (std::index_sequence<Is...>{}, std::forward<U>(x));
+			if constexpr (sizeof...(Is) != 0) fill_tuple<J + 1>(std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
 		template<std::size_t I = 0, typename U, typename... Us>
 		SEK_FORCEINLINE void fill_vals(U &&x, Us &&...args) noexcept
@@ -178,10 +178,10 @@ namespace sek
 			if constexpr (I < N)
 			{
 				if constexpr (detail::has_tuple_size<U>)
-					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<U>>>{}, std::forward<U>(x));
+					fill_tuple<I>(std::make_index_sequence<detail::arg_extent_v<U>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
-				if constexpr (sizeof...(Us) != 0) fill_vals < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
+				if constexpr (sizeof...(Us) != 0) fill_vals<I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
 			}
 		}
 
@@ -488,7 +488,7 @@ namespace sek
 		SEK_FORCEINLINE void fill_other(const basic_vec<U, M, OtherAbi> &other) noexcept
 		{
 			if constexpr (M != N)
-				fill_tuple(std::make_index_sequence<N>{}, other);
+				fill_tuple(std::make_index_sequence<M>{}, other);
 			else
 				m_data = to_simd(other);
 		}
@@ -497,7 +497,7 @@ namespace sek
 		{
 			using std::get;
 			operator[](J) = static_cast<value_type>(get<I>(x));
-			if constexpr (sizeof...(Is) != 0) fill_tuple < J + 1 > (std::index_sequence<Is...>{}, std::forward<U>(x));
+			if constexpr (sizeof...(Is) != 0) fill_tuple<J + 1>(std::index_sequence<Is...>{}, std::forward<U>(x));
 		}
 		template<std::size_t I = 0, typename U, typename... Us>
 		SEK_FORCEINLINE void fill_vals(U &&x, Us &&...args) noexcept
@@ -505,10 +505,10 @@ namespace sek
 			if constexpr (I < N)
 			{
 				if constexpr (detail::has_tuple_size<U>)
-					fill_tuple<I>(std::make_index_sequence<std::tuple_size_v<std::remove_cvref_t<U>>>{}, std::forward<U>(x));
+					fill_tuple<I>(std::make_index_sequence<detail::arg_extent_v<U>>{}, std::forward<U>(x));
 				else
 					operator[](I) = static_cast<value_type>(x);
-				if constexpr (sizeof...(Us) != 0) fill_vals < I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
+				if constexpr (sizeof...(Us) != 0) fill_vals<I + detail::arg_extent_v<U>>(std::forward<Us>(args)...);
 			}
 		}
 
