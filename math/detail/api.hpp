@@ -4,7 +4,7 @@
 
 #pragma once
 
-#if defined(SEK_MATH_LIB_SHARED) && (defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__))
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #define SEK_MATH_API_HIDDEN
 #if defined(_MSC_VER)
 #define SEK_MATH_API_EXPORT __declspec(dllexport)
@@ -23,7 +23,7 @@
 #define SEK_MATH_API_IMPORT
 #endif
 
-#ifdef SEK_MATH_EXPORT
+#if defined(SEK_MATH_EXPORT) || defined(SEK_MATH_LIB_STATIC)
 #define SEK_MATH_PUBLIC SEK_MATH_API_EXPORT
 #else
 #define SEK_MATH_PUBLIC SEK_MATH_API_IMPORT

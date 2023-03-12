@@ -56,12 +56,12 @@ endfunction()
 if (SEK_MATH_BUILD_SHARED)
     sek_configure_target(${PROJECT_NAME}-shared SHARED)
     target_link_libraries(${PROJECT_NAME}-shared PUBLIC dpm-shared)
-    target_compile_definitions(${PROJECT_NAME}-shared PUBLIC SEK_MATH_LIB_SHARED)
 endif ()
 if (SEK_MATH_BUILD_STATIC)
     sek_configure_target(${PROJECT_NAME}-static STATIC)
     target_link_libraries(${PROJECT_NAME}-static PUBLIC dpm-static)
     set_target_properties(${PROJECT_NAME}-static PROPERTIES PREFIX "lib")
+    target_compile_definitions(${PROJECT_NAME}-static PUBLIC SEK_MATH_LIB_STATIC)
 endif ()
 
 # Add unit tests
