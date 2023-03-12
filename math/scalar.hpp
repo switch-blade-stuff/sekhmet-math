@@ -62,12 +62,12 @@ namespace sek
 
 	/** @copydoc deg
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, typename Promoted = detail::promote_t<T>>
-	[[nodiscard]] constexpr Promoted deg(T x) noexcept { return deg(static_cast<Promoted>(x)); }
+	template<typename T>
+	[[nodiscard]] constexpr auto deg(T x) noexcept { return deg(static_cast<detail::promote_t<T>>(x)); }
 	/** @copydoc rad
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, typename Promoted = detail::promote_t<T>>
-	[[nodiscard]] constexpr Promoted rad(T x) noexcept { return rad(static_cast<Promoted>(x)); }
+	template<typename T>
+	[[nodiscard]] constexpr auto rad(T x) noexcept { return rad(static_cast<detail::promote_t<T>>(x)); }
 
 	/** Counts leading zeros of integer \a x */
 	template<std::integral T>

@@ -891,11 +891,11 @@ namespace sek
 
 	/** @copydoc rad
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted rad(const basic_vec<T, N, A> &x) noexcept { return rad(Promoted{x}); }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline auto rad(const basic_vec<T, N, A> &x) noexcept { return rad(vec<detail::promote_t<T>, N, A>{x}); }
 	/** @copydoc deg
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted deg(const basic_vec<T, N, A> &x) noexcept { return deg(Promoted{x}); }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline auto deg(const basic_vec<T, N, A> &x) noexcept { return deg(vec<detail::promote_t<T>, N, A>{x}); }
 #pragma endregion
 }

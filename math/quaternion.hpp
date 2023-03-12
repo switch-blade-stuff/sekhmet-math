@@ -465,8 +465,8 @@ namespace sek
 	[[nodiscard]] inline typename basic_quat<T, A>::mask_type fcmp_eq(const basic_quat<T, A> &a, const basic_quat<T, A> &b, T e_rel, T e_abs) noexcept { return fcmp_eq(a.vector(), b.vector(), e_abs, e_rel); }
 	/** @copydoc fcmp_eq
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, typename T3, typename A, typename Promoted = detail::promote_t<T0, T1, T2, T3>>
-	[[nodiscard]] inline vec4_mask<Promoted, A> fcmp_eq(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e_rel, T3 e_abs) noexcept { return fcmp_eq(a.vector(), b.vector(), e_abs, e_rel); }
+	template<typename T0, typename T1, typename T2, typename T3, typename A>
+	[[nodiscard]] inline vec4_mask<detail::promote_t<T0, T1, T2, T3>, A> fcmp_eq(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e_rel, T3 e_abs) noexcept { return fcmp_eq(a.vector(), b.vector(), e_abs, e_rel); }
 
 	/** Determines if elements of quaternion \a a are within epsilon \a e of quaternion \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
@@ -474,8 +474,8 @@ namespace sek
 	[[nodiscard]] inline typename basic_quat<T, A>::mask_type fcmp_eq(const basic_quat<T, A> &a, const basic_quat<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_eq(a, b, e, e); }
 	/** @copydoc fcmp_eq
  	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, typename A, typename Promoted = detail::promote_t<T0, T1, T2>>
-	[[nodiscard]] inline vec4_mask<Promoted, A> fcmp_eq(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e) noexcept { return fcmp_eq(a, b, e, e); }
+	template<typename T0, typename T1, typename T2, typename A>
+	[[nodiscard]] inline vec4_mask<detail::promote_t<T0, T1, T2>, A> fcmp_eq(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e) noexcept { return fcmp_eq(a, b, e, e); }
 
 	/** Determines if elements of quaternion \a a are not within relative epsilon \a e_rel or absolute epsilon \a e_abs of quaternion \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
@@ -483,8 +483,8 @@ namespace sek
 	[[nodiscard]] inline typename basic_quat<T, A>::mask_type fcmp_ne(const basic_quat<T, A> &a, const basic_quat<T, A> &b, T e_rel, T e_abs) noexcept { return fcmp_ne(a.vector(), b.vector(), e_abs, e_rel); }
 	/** @copydoc fcmp_ne
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, typename T3, typename A, typename Promoted = detail::promote_t<T0, T1, T2, T3>>
-	[[nodiscard]] inline vec4_mask<Promoted, A> fcmp_ne(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e_rel, T3 e_abs) noexcept { return fcmp_ne(a.vector(), b.vector(), e_abs, e_rel); }
+	template<typename T0, typename T1, typename T2, typename T3, typename A>
+	[[nodiscard]] inline vec4_mask<detail::promote_t<T0, T1, T2, T3>, A> fcmp_ne(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e_rel, T3 e_abs) noexcept { return fcmp_ne(a.vector(), b.vector(), e_abs, e_rel); }
 
 	/** Determines if elements of quaternion \a a are not within epsilon \a e of quaternion \a b.
 	 * @note If any of the elements of \a a or \a b are NaN, floating-point exceptions may be raised. */
@@ -492,7 +492,7 @@ namespace sek
 	[[nodiscard]] inline typename basic_quat<T, A>::mask_type fcmp_ne(const basic_quat<T, A> &a, const basic_quat<T, A> &b, T e = std::numeric_limits<T>::epsilon()) noexcept { return fcmp_ne(a, b, e, e); }
 	/** @copydoc fcmp_ne
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, typename A, typename Promoted = detail::promote_t<T0, T1, T2>>
-	[[nodiscard]] inline vec4_mask<Promoted, A> fcmp_ne(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e) noexcept { return fcmp_ne(a, b, e, e); }
+	template<typename T0, typename T1, typename T2, typename A>
+	[[nodiscard]] inline vec4_mask<detail::promote_t<T0, T1, T2>, A> fcmp_ne(const basic_quat<T0, A> &a, const basic_quat<T1, A> &b, T2 e) noexcept { return fcmp_ne(a, b, e, e); }
 #pragma endregion
 }

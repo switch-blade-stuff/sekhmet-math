@@ -29,26 +29,26 @@ namespace sek
 
 	/** @copydoc sinh
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted sinh(const basic_vec<T, N, A> &x) noexcept { return {dpm::sinh(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<detail::promote_t<T>, N, A> sinh(const basic_vec<T, N, A> &x) noexcept { return {dpm::sinh(to_simd(x))}; }
 	/** @copydoc cosh
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted cosh(const basic_vec<T, N, A> &x) noexcept { return {dpm::cosh(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<detail::promote_t<T>, N, A> cosh(const basic_vec<T, N, A> &x) noexcept { return {dpm::cosh(to_simd(x))}; }
 	/** @copydoc tanh
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted tanh(const basic_vec<T, N, A> &x) noexcept { return {dpm::tanh(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<detail::promote_t<T>, N, A> tanh(const basic_vec<T, N, A> &x) noexcept { return {dpm::tanh(to_simd(x))}; }
 	/** @copydoc asinh
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted asinh(const basic_vec<T, N, A> &x) noexcept { return {dpm::asinh(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<detail::promote_t<T>, N, A> asinh(const basic_vec<T, N, A> &x) noexcept { return {dpm::asinh(to_simd(x))}; }
 	/** @copydoc acosh
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted acosh(const basic_vec<T, N, A> &x) noexcept { return {dpm::acosh(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<detail::promote_t<T>, N, A> acosh(const basic_vec<T, N, A> &x) noexcept { return {dpm::acosh(to_simd(x))}; }
 	/** @copydoc atanh
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted atanh(const basic_vec<T, N, A> &x) noexcept { return {dpm::atanh(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<detail::promote_t<T>, N, A> atanh(const basic_vec<T, N, A> &x) noexcept { return {dpm::atanh(to_simd(x))}; }
 }

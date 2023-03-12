@@ -31,12 +31,16 @@ namespace sek
 	[[nodiscard]] inline T dist(const basic_vec<T, N, A> &a, const basic_vec<T, N, A> &b) noexcept { return magn(a - b); }
 	/** @copydoc magn
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline typename Promoted::value_type magn(const basic_vec<T, N, A> &x) noexcept { return magn(Promoted{x}); }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline detail::promote_t<T> magn(const basic_vec<T, N, A> &x) noexcept { return magn(vec<detail::promote_t<T>, N, A>{x}); }
 	/** @copydoc dist
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline typename Promoted::value_type dist(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return magn(Promoted{a}, Promoted{b}); }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline detail::promote_t<T0, T1> dist(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept
+	{
+		using promoted_t = vec<detail::promote_t<T0, T1>, N, A>;
+		return dist(promoted_t{a}, promoted_t{b});
+	}
 
 	/** Returns normalized copy (length 1) of vector \a x. */
 	template<std::floating_point T, std::size_t N, typename A>
@@ -49,8 +53,8 @@ namespace sek
 	}
 	/** @copydoc normalize
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline Promoted normalize(const basic_vec<T, N, A> &x) noexcept { return normalize(Promoted{x}); }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline auto normalize(const basic_vec<T, N, A> &x) noexcept { return normalize(vec<detail::promote_t<T>, N, A>{x}); }
 
 	/** Orients normal vector \a n to point in the direction specified by incident vector \a i and normal reference vector \a r.
 	 * @return `dot(r, i) < 0 ? n : -n`. */
@@ -61,10 +65,11 @@ namespace sek
 	}
 	/** @copydoc normalize
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] inline Promoted faceforward(const basic_vec<T0, N, A> &n, const basic_vec<T1, N, A> &i, const basic_vec<T2, N, A> &r) noexcept
+	template<typename T0, typename T1, typename T2, std::size_t N, typename A>
+	[[nodiscard]] inline auto faceforward(const basic_vec<T0, N, A> &n, const basic_vec<T1, N, A> &i, const basic_vec<T2, N, A> &r) noexcept
 	{
-		return faceforward(Promoted{n}, Promoted{i}, Promoted{r});
+		using promoted_t = vec<detail::promote_t<T0, T1, T2>, N, A>;
+		return faceforward(promoted_t{n}, promoted_t{i}, promoted_t{r});
 	}
 
 	/** Calculates reflection direction for incident vector \a i and normal vector \a n.
@@ -76,10 +81,11 @@ namespace sek
 	}
 	/** @copydoc reflect
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline Promoted reflect(const basic_vec<T0, N, A> &i, const basic_vec<T1, N, A> &n) noexcept
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline auto reflect(const basic_vec<T0, N, A> &i, const basic_vec<T1, N, A> &n) noexcept
 	{
-		return reflect(Promoted{i}, Promoted{n});
+		using promoted_t = vec<detail::promote_t<T0, T1>, N, A>;
+		return reflect(promoted_t{i}, promoted_t{n});
 	}
 
 	/** Calculates refraction vector for incident vector \a i and normal vector \a n using refraction ratio of indices \a e. */
@@ -92,9 +98,10 @@ namespace sek
 	}
 	/** @copydoc refract
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, std::size_t N, typename A, typename Promoted = vec<detail::promote_t<T0, T1, T2>, N, A>>
-	[[nodiscard]] inline Promoted refract(const basic_vec<T0, N, A> &i, const basic_vec<T1, N, A> &n, T2 e) noexcept
+	template<typename T0, typename T1, typename T2, std::size_t N, typename A>
+	[[nodiscard]] inline auto refract(const basic_vec<T0, N, A> &i, const basic_vec<T1, N, A> &n, T2 e) noexcept
 	{
-		return refract(Promoted{i}, Promoted{n}, static_cast<typename Promoted::value_type>(e));
+		using promoted_t = vec<detail::promote_t<T0, T1, T2>, N, A>;
+		return refract(promoted_t{i}, promoted_t{n}, static_cast<detail::promote_t<T0, T1, T2>>(e));
 	}
 }

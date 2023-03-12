@@ -29,28 +29,28 @@ namespace sek
 
 	/** @copydoc fpclassify
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename Promoted = vec<int, N, A>>
-	[[nodiscard]] inline Promoted fpclassify(const basic_vec<T, N, A> &x) noexcept { return {dpm::fpclassify(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec<int, N, A> fpclassify(const basic_vec<T, N, A> &x) noexcept { return {dpm::fpclassify(to_simd(x))}; }
 	/** @copydoc isfinite
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline PromotedMask isfinite(const basic_vec<T, N, A> &x) noexcept { return {dpm::isfinite(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T>, N, A> isfinite(const basic_vec<T, N, A> &x) noexcept { return {dpm::isfinite(to_simd(x))}; }
 	/** @copydoc isinf
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline PromotedMask isinf(const basic_vec<T, N, A> &x) noexcept { return {dpm::isinf(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T>, N, A> isinf(const basic_vec<T, N, A> &x) noexcept { return {dpm::isinf(to_simd(x))}; }
 	/** @copydoc isnan
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline PromotedMask isnan(const basic_vec<T, N, A> &x) noexcept { return {dpm::isnan(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T>, N, A> isnan(const basic_vec<T, N, A> &x) noexcept { return {dpm::isnan(to_simd(x))}; }
 	/** @copydoc isnormal
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline PromotedMask isnormal(const basic_vec<T, N, A> &x) noexcept { return {dpm::isnormal(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T>, N, A> isnormal(const basic_vec<T, N, A> &x) noexcept { return {dpm::isnormal(to_simd(x))}; }
 	/** @copydoc signbit
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T>, N, A>>
-	[[nodiscard]] inline PromotedMask signbit(const basic_vec<T, N, A> &x) noexcept { return {dpm::signbit(to_simd(x))}; }
+	template<typename T, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T>, N, A> signbit(const basic_vec<T, N, A> &x) noexcept { return {dpm::signbit(to_simd(x))}; }
 
 	/** Determines if elements of \a a are greater than elements of \a b without setting floating-point exceptions. */
 	template<std::floating_point T, std::size_t N, typename A>
@@ -73,26 +73,26 @@ namespace sek
 
 	/** @copydoc isgreater
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline PromotedMask isgreater(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isgreater(to_simd(a), to_simd(b))}; }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T0, T1>, N, A> isgreater(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isgreater(to_simd(a), to_simd(b))}; }
 	/** @copydoc isgreaterequal
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline PromotedMask isgreaterequal(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isgreaterequal(to_simd(a), to_simd(b))}; }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T0, T1>, N, A> isgreaterequal(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isgreaterequal(to_simd(a), to_simd(b))}; }
 	/** @copydoc isless
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline PromotedMask isless(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isless(to_simd(a), to_simd(b))}; }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T0, T1>, N, A> isless(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isless(to_simd(a), to_simd(b))}; }
 	/** @copydoc islessequal
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline PromotedMask islessequal(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::islessequal(to_simd(a), to_simd(b))}; }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T0, T1>, N, A> islessequal(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::islessequal(to_simd(a), to_simd(b))}; }
 	/** @copydoc islessgreater
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline PromotedMask islessgreater(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::islessgreater(to_simd(a), to_simd(b))}; }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T0, T1>, N, A> islessgreater(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::islessgreater(to_simd(a), to_simd(b))}; }
 	/** @copydoc isunordered
 	 * @note Arguments and return type are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, std::size_t N, typename A, typename PromotedMask = vec_mask<detail::promote_t<T0, T1>, N, A>>
-	[[nodiscard]] inline PromotedMask isunordered(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isunordered(to_simd(a), to_simd(b))}; }
+	template<typename T0, typename T1, std::size_t N, typename A>
+	[[nodiscard]] inline vec_mask<detail::promote_t<T0, T1>, N, A> isunordered(const basic_vec<T0, N, A> &a, const basic_vec<T1, N, A> &b) noexcept { return {dpm::isunordered(to_simd(a), to_simd(b))}; }
 }

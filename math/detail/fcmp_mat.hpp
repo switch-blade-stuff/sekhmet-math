@@ -21,11 +21,12 @@ namespace sek
 	}
 	/** @copydoc fcmp_eq
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, typename T3, std::size_t NCols, std::size_t NRows, typename A, typename Promoted = detail::promote_t<T0, T1, T2, T3>>
+	template<typename T0, typename T1, typename T2, typename T3, std::size_t NCols, std::size_t NRows, typename A>
 	[[nodiscard]] inline bool fcmp_eq(const basic_mat<T0, NCols, NRows, A> &a, const basic_mat<T1, NCols, NRows, A> &b, T2 e_rel, T3 e_abs) noexcept
 	{
-		using promoted_mat = mat<Promoted, NCols, NRows, A>;
-		return fcmp_eq(promoted_mat{a}, promoted_mat{b}, static_cast<Promoted>(e_rel), static_cast<Promoted>(e_abs));
+		using promoted_value = detail::promote_t<T0, T1, T2, T3>;
+		using promoted_mat = mat<promoted_value, NCols, NRows, A>;
+		return fcmp_eq(promoted_mat{a}, promoted_mat{b}, static_cast<promoted_value>(e_rel), static_cast<promoted_value>(e_abs));
 	}
 
 	/** Determines if elements of matrix \a a are within epsilon \a e of matrix \a b.
@@ -49,11 +50,12 @@ namespace sek
 	}
 	/** @copydoc fcmp_ne
 	 * @note Arguments are promoted to `double`, or `long double` if one of the arguments is `long double`. */
-	template<typename T0, typename T1, typename T2, typename T3, std::size_t NCols, std::size_t NRows, typename A, typename Promoted = detail::promote_t<T0, T1, T2, T3>>
+	template<typename T0, typename T1, typename T2, typename T3, std::size_t NCols, std::size_t NRows, typename A>
 	[[nodiscard]] inline bool fcmp_ne(const basic_mat<T0, NCols, NRows, A> &a, const basic_mat<T1, NCols, NRows, A> &b, T2 e_rel, T3 e_abs) noexcept
 	{
-		using promoted_mat = mat<Promoted, NCols, NRows, A>;
-		return fcmp_ne(promoted_mat{a}, promoted_mat{b}, static_cast<Promoted>(e_rel), static_cast<Promoted>(e_abs));
+		using promoted_value = detail::promote_t<T0, T1, T2, T3>;
+		using promoted_mat = mat<promoted_value, NCols, NRows, A>;
+		return fcmp_ne(promoted_mat{a}, promoted_mat{b}, static_cast<promoted_value>(e_rel), static_cast<promoted_value>(e_abs));
 	}
 
 	/** Determines if elements of matrix \a a are not within epsilon \a e of matrix \a b.
